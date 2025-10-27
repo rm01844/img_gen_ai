@@ -3,6 +3,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import json
+import tempfile
 import time
 import uuid
 import vertexai
@@ -22,6 +23,12 @@ if not PROJECT_ID:
 # Initialize Vertex AI
 vertexai.init(project=PROJECT_ID, location=LOCATION)
 
+SERVICE_KEY_JSON = os.getenv("SERVICE_KEY_JSON")  # set this on Render
+if SERVICE_KEY_JSON:
+    key_path = os.path.join(tempfile.gettempdir(), "vertex-key.json")
+    with open(key_path, "w") as f:
+        f.write(SERVICE_KEY_JSON)  # JSON text
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = key_path
 
 @app.route("/")
 def index():
