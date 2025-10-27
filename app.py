@@ -9,34 +9,43 @@ import uuid
 import vertexai
 from vertexai.preview.vision_models import ImageGenerationModel
 
+# Initialize Flask app
 app = Flask(__name__)
 CORS(app)
 
-# Load environment variables
+# Load environment variables (if running locally)
 load_dotenv()
+
+# Handle Vertex AI credentials dynamically (for Railway/Render)
+SERVICE_KEY_JSON = os.getenv("SERVICE_KEY_JSON")
+if SERVICE_KEY_JSON:
+    key_path = os.path.join(tempfile.gettempdir(), "vertex-key.json")
+    with open(key_path, "w") as f:
+        f.write(SERVICE_KEY_JSON)
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = key_path
+
+# Get GCP configuration from environment
 PROJECT_ID = os.getenv("PROJECT_ID")
-LOCATION = os.getenv("LOCATION")
+LOCATION = os.getenv("LOCATION", "us-central1")
 
 if not PROJECT_ID:
-    raise ValueError("PROJECT_ID missing in .env file")
+    raise ValueError("PROJECT_ID missing in environment variables")
 
 # Initialize Vertex AI
 vertexai.init(project=PROJECT_ID, location=LOCATION)
 
-SERVICE_KEY_JSON = os.getenv("SERVICE_KEY_JSON")  # set this on Render
-if SERVICE_KEY_JSON:
-    key_path = os.path.join(tempfile.gettempdir(), "vertex-key.json")
-    with open(key_path, "w") as f:
-        f.write(SERVICE_KEY_JSON)  # JSON text
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = key_path
+# ------------------------------
+# Routes
+# ------------------------------
 
 @app.route("/")
 def index():
+    """Render the HTML UI."""
     return render_template("index.html")
-
 
 @app.route("/generate", methods=["POST"])
 def generate_image():
+    """Generate an image using Vertex AI Imagen 4.0."""
     try:
         data = request.get_json()
         prompt = data.get("prompt")
@@ -46,10 +55,10 @@ def generate_image():
         if not prompt:
             return jsonify({"error": "No prompt provided"}), 400
 
-        # Load Imagen 4.0 model
+        # Load Imagen model
         model = ImageGenerationModel.from_pretrained("imagen-4.0-generate-001")
 
-        # Generate images
+        # Generate image
         result = model.generate_images(
             prompt=prompt,
             number_of_images=1,
@@ -62,15 +71,20 @@ def generate_image():
 
         # Save image to static folder
         filename = f"generated_{uuid.uuid4().hex}.png"
-        output_path = f"static/{filename}"
+        output_path = os.path.join("static", filename)
         result.images[0].save(output_path)
 
+        # Return image URL with timestamp (cache-buster)
         return jsonify({"image_url": f"/{output_path}?v={int(time.time())}"})
 
     except Exception as e:
         print("Error:", str(e))
         return jsonify({"error": str(e)}), 500
 
-
+# ------------------------------
+# Main Entry Point
+# ------------------------------
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    # Railway uses PORT env var, fallback to 8080 for local testing
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port, debug=False)
