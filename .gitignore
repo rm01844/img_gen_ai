@@ -1,0 +1,32 @@
+#  Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+
+#  Virtual environment
+venv/
+ENV/
+env/
+.venv/
+
+#  Environment variables (DO NOT upload your API keys!)
+.env
+fiery-palace-476405-u5-422ed6d324d4.json
+
+#  OS junk
+.DS_Store
+Thumbs.db
+
+#  IDE / Editor configs
+.vscode/
+.idea/
+*.log
+
+# ️ Cache & build files
+*.egg-info/
+build/
+dist/
+
