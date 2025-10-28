@@ -69,6 +69,7 @@ def login():
         print(f"DEBUG: Entered OTP='{entered_otp}' | Stored OTP='{stored_otp}'")  # 👀 Log in Railway
 
         if entered_otp == stored_otp:
+            session.permanent = True
             session["is_admin"] = True
             print("✅ OTP accepted, admin logged in.")
             return redirect(url_for("index"))
