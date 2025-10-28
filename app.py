@@ -16,8 +16,14 @@ CORS(app)
 
 app.secret_key = os.getenv("SECRET_KEY")
 
-# Load environment variables (if running locally)
-load_dotenv()
+# Only load .env locally — not on Railway
+if not os.getenv("RAILWAY_ENVIRONMENT"):
+    from dotenv import load_dotenv
+    load_dotenv()
+    print("📦 Loaded local .env file")
+else:
+    print("🚀 Running on Railway — using environment variables")
+
 
 # Handle Vertex AI credentials dynamically (for Railway/Render)
 SERVICE_KEY_JSON = os.getenv("SERVICE_KEY_JSON")
@@ -56,12 +62,18 @@ def login_required(f):
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    stored_otp = (os.getenv("SUPERADMIN_OTP") or "").strip()
     if request.method == "POST":
-        entered_otp = request.form.get("otp")
-        if entered_otp == os.getenv("SUPERADMIN_OTP"):
+        entered_otp = request.form.get("otp", "").strip()
+
+        print(f"DEBUG: Entered OTP='{entered_otp}' | Stored OTP='{stored_otp}'")  # 👀 Log in Railway
+
+        if entered_otp == stored_otp:
             session["is_admin"] = True
+            print("✅ OTP accepted, admin logged in.")
             return redirect(url_for("index"))
         else:
+            print("❌ Invalid OTP entered.")
             return render_template_string("""
                 <h2 style='color:red;'>Invalid OTP</h2>
                 <a href='/login'>Try again</a>
@@ -85,6 +97,7 @@ def restrict_access():
 def index():
     """Render the HTML UI."""
     return render_template("index.html")
+
 
 @app.route("/generate", methods=["POST"])
 def generate_image():
@@ -123,6 +136,14 @@ def generate_image():
     except Exception as e:
         print("Error:", str(e))
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/logout")
+def logout():
+    session.pop("is_admin", None)
+    print("👋 Superadmin logged out.")
+    return redirect(url_for("login"))
+
 
 # ------------------------------
 # Main Entry Point
