@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template,redirect,url_for, session, flask
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
@@ -33,10 +33,42 @@ if not PROJECT_ID:
 
 # Initialize Vertex AI
 vertexai.init(project=PROJECT_ID, location=LOCATION)
+SUPERADMIN_OTP = os.getenv("SUPERADMIN_OTP")
+
+def login_required(f):
+    from functools import wraps
+
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get("logged_in"):
+            flash("Please log in to access the generator.", "warning")
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated_function
 
 # ------------------------------
 # Routes
 # ------------------------------
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        otp = request.form.get("otp")
+        if otp == SUPERADMIN_OTP:
+            session["logged_in"] = True
+            flash("Access granted ✅", "success")
+            return redirect(url_for("index"))
+        else:
+            flash("Invalid OTP ❌", "danger")
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("Logged out successfully.", "info")
+    return redirect(url_for("login"))
+
 
 @app.route("/")
 def index():
