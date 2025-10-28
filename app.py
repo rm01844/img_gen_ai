@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template,redirect,url_for, session, flask
+from flask import Flask, request, jsonify, render_template,redirect,url_for, session, flask, render_template_string
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
