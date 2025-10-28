@@ -8,10 +8,13 @@ import time
 import uuid
 import vertexai
 from vertexai.preview.vision_models import ImageGenerationModel
+from datetime import timedelta
 
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)
+
+app.secret_key = os.getenv("SECRET_KEY")
 
 # Load environment variables (if running locally)
 load_dotenv()
@@ -27,6 +30,7 @@ if SERVICE_KEY_JSON:
 # Get GCP configuration from environment
 PROJECT_ID = os.getenv("PROJECT_ID")
 LOCATION = os.getenv("LOCATION", "us-central1")
+app.permanent_session_lifetime = timedelta(hours=1)
 
 if not PROJECT_ID:
     raise ValueError("PROJECT_ID missing in environment variables")
@@ -53,21 +57,28 @@ def login_required(f):
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        otp = request.form.get("otp")
-        if otp == SUPERADMIN_OTP:
-            session["logged_in"] = True
-            flash("Access granted ✅", "success")
+        entered_otp = request.form.get("otp")
+        if entered_otp == os.getenv("SUPERADMIN_OTP"):
+            session["is_admin"] = True
             return redirect(url_for("index"))
         else:
-            flash("Invalid OTP ❌", "danger")
-    return render_template("login.html")
+            return render_template_string("""
+                <h2 style='color:red;'>Invalid OTP</h2>
+                <a href='/login'>Try again</a>
+            """)
+    return render_template_string("""
+        <form method="POST" style="display:flex;flex-direction:column;align-items:center;margin-top:100px;">
+            <h2>Enter Superadmin OTP</h2>
+            <input type="password" name="otp" placeholder="Enter OTP" required style="padding:10px;margin:10px;">
+            <button type="submit" style="padding:8px 16px;">Login</button>
+        </form>
+    """)
 
 
-@app.route("/logout")
-def logout():
-    session.clear()
-    flash("Logged out successfully.", "info")
-    return redirect(url_for("login"))
+@app.before_request
+def restrict_access():
+    if request.endpoint not in ("login", "static") and not session.get("is_admin"):
+        return redirect(url_for("login"))
 
 
 @app.route("/")
