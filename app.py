@@ -62,16 +62,17 @@ def login_required(f):
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    stored_otp = (os.getenv("SUPERADMIN_OTP") or "").strip()
-    if request.method == "POST":
-        entered_otp = request.form.get("otp", "").strip()
+    stored_otp = (os.getenv("SUPERADMIN_OTP") or "").strip().replace("\n", "").replace("\r", "").strip()
 
-        print(f"DEBUG: Entered OTP='{entered_otp}' | Stored OTP='{stored_otp}'")  # 👀 Log in Railway
+    if request.method == "POST":
+        entered_otp = (request.form.get("otp") or "").strip().replace("\n", "").replace("\r", "").strip()
+
+        print(f"🔍 DEBUG OTP | Entered='{entered_otp}' | Stored='{stored_otp}' | Match={entered_otp == stored_otp}")
 
         if entered_otp == stored_otp:
             session.permanent = True
             session["is_admin"] = True
-            print("✅ OTP accepted, admin logged in.")
+            print("✅ OTP accepted — redirecting to index.")
             return redirect(url_for("index"))
         else:
             print("❌ Invalid OTP entered.")
@@ -79,6 +80,7 @@ def login():
                 <h2 style='color:red;'>Invalid OTP</h2>
                 <a href='/login'>Try again</a>
             """)
+
     return render_template_string("""
         <form method="POST" style="display:flex;flex-direction:column;align-items:center;margin-top:100px;">
             <h2>Enter Superadmin OTP</h2>
@@ -86,6 +88,7 @@ def login():
             <button type="submit" style="padding:8px 16px;">Login</button>
         </form>
     """)
+
 
 
 @app.before_request
