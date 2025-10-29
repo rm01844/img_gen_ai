@@ -279,8 +279,10 @@
           alert("Error: " + data.error);
           return;
         }
-
+        
         const imageUrls = data.image_urls || [data.image_url];
+        
+        // 🖼️ show generated/edited images first
         imageUrls.forEach((url) => {
           const img = document.createElement("img");
           img.src = url;
@@ -288,6 +290,28 @@
           gallery.appendChild(img);
           setTimeout(() => img.classList.add("visible"), 100);
         });
+        
+        // 🪄 if this was an edit, also show the uploaded base image beneath
+        if (mode === "edit" && imageFile) {
+          const divider = document.createElement("hr");
+          divider.style.width = "90%";
+          divider.style.margin = "30px 0";
+          divider.style.border = "1px solid #ddd";
+          gallery.appendChild(divider);
+        
+          const baseLabel = document.createElement("p");
+          baseLabel.textContent = "Original Uploaded Image:";
+          baseLabel.style.textAlign = "center";
+          baseLabel.style.fontWeight = "600";
+          baseLabel.style.color = "#444";
+          gallery.appendChild(baseLabel);
+        
+          const uploadedPreview = document.createElement("img");
+          uploadedPreview.src = URL.createObjectURL(imageFile);
+          uploadedPreview.classList.add("generatedImage");
+          gallery.appendChild(uploadedPreview);
+          setTimeout(() => uploadedPreview.classList.add("visible"), 100);
+        }
       } catch (err) {
         loader.style.display = "none";
         alert("Error: " + err.message);
