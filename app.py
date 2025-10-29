@@ -63,9 +63,10 @@ def login_required(f):
 @app.route("/login", methods=["GET", "POST"])
 def login():
     stored_otp = (os.getenv("SUPERADMIN_OTP") or "").strip().replace("\n", "").replace("\r", "").replace(" ", "")
-    entered_otp = (request.form.get("otp") or "").strip().replace("\n", "").replace("\r", "").replace(" ", "")
-    print(f"DEBUG: Entered='{entered_otp}' | Stored='{stored_otp}' | Match={entered_otp == stored_otp}")
 
+    if request.method == "POST":
+        entered_otp = (request.form.get("otp") or "").strip().replace("\n", "").replace("\r", "").replace(" ", "")
+        print(f"🔍 DEBUG OTP | Entered='{entered_otp}' | Stored='{stored_otp}' | Match={entered_otp == stored_otp}")
 
         if entered_otp == stored_otp:
             session.permanent = True
@@ -140,7 +141,6 @@ def login():
         </body>
         </html>
     """)
-
 
 
 
