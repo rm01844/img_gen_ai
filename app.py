@@ -1,13 +1,16 @@
-from flask import Flask, request, jsonify, render_template,redirect,url_for, session, flash, render_template_string
+from flask import Flask, request, jsonify, render_template, render_template_string, redirect, url_for, session, flash
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
-import json
-import tempfile
 import time
+import tempfile
 import uuid
+import base64
+import requests
 import vertexai
 from vertexai.preview.vision_models import ImageGenerationModel
+from google.auth.transport.requests import Request
+from google.oauth2 import service_account
 from datetime import timedelta
 
 # Initialize Flask app
@@ -36,6 +39,14 @@ if SERVICE_KEY_JSON:
 # Get GCP configuration from environment
 PROJECT_ID = os.getenv("PROJECT_ID")
 LOCATION = os.getenv("LOCATION", "us-central1")
+local_credentials = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]
+credentials = service_account.Credentials.from_service_account_file(
+    local_credentials, scopes=SCOPES
+)
+credentials.refresh(Request())
+MODEL_ID = "imagen-3.0-capability-001"
+ENDPOINT = f"https://{LOCATION}-aiplatform.googleapis.com/v1/projects/{PROJECT_ID}/locations/{LOCATION}/publishers/google/models/{MODEL_ID}:predict"
 app.permanent_session_lifetime = timedelta(hours=1)
 
 if not PROJECT_ID:
@@ -143,7 +154,6 @@ def login():
     """)
 
 
-
 @app.before_request
 def restrict_access():
     if request.endpoint not in ("login", "static") and not session.get("is_admin"):
@@ -198,6 +208,75 @@ def generate_image():
         print("Error:", str(e))
         return jsonify({"error": str(e)}), 500
 
+
+@app.route("/edit", methods=["POST"])
+def edit_image():
+    try:
+        prompt = request.form.get("prompt", "").strip() or "Modify this image"
+        number_of_images = int(request.form.get("number_of_images", 1))
+
+        if "image" not in request.files:
+            return jsonify({"error": "No image uploaded"}), 400
+
+        # Save uploaded file temporarily
+        uploaded = request.files["image"]
+        temp_path = os.path.join(
+            tempfile.gettempdir(), f"upload_{uuid.uuid4().hex}.png")
+        uploaded.save(temp_path)
+
+        # Read + base64 encode
+        with open(temp_path, "rb") as f:
+            img_b64 = base64.b64encode(f.read()).decode("utf-8")
+
+        # ✅ Construct REST request body correctly
+        body = {
+            "instances": [
+                {
+                    "prompt": prompt,
+                    "referenceImages": [
+                        {
+                            "referenceType": "REFERENCE_TYPE_RAW",
+                            "referenceId": 1,
+                            "referenceImage": {
+                                "bytesBase64Encoded": img_b64
+                            }
+                        }
+                    ],
+                }
+            ],
+            # ✅ `parameters` moved to top level
+            "parameters": {
+                "sampleCount": number_of_images
+            },
+        }
+
+        headers = {
+            "Authorization": f"Bearer {credentials.token}",
+            "Content-Type": "application/json",
+        }
+
+        response = requests.post(ENDPOINT, headers=headers, json=body)
+        response.raise_for_status()
+        result = response.json()
+
+        # Save results
+        image_urls = []
+        for pred in result.get("predictions", []):
+            data_b64 = pred.get("bytesBase64Encoded")
+            if not data_b64:
+                continue
+            filename = f"edited_{uuid.uuid4().hex}.png"
+            out_path = os.path.join("static", filename)
+            with open(out_path, "wb") as f:
+                f.write(base64.b64decode(data_b64))
+            image_urls.append(f"/{out_path}?v={int(time.time())}")
+
+        return jsonify({"image_urls": image_urls})
+
+    except Exception as e:
+        print("❌ Error in Imagen 3 Edit:", e)
+        return jsonify({"error": str(e)}), 500
+    
 
 @app.route("/logout")
 def logout():
