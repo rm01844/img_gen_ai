@@ -62,11 +62,10 @@ def login_required(f):
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    stored_otp = (os.getenv("SUPERADMIN_OTP") or "").strip().replace("\n", "").replace("\r", "").strip()
+    stored_otp = (os.getenv("SUPERADMIN_OTP") or "").strip().replace("\n", "").replace("\r", "")
 
     if request.method == "POST":
-        entered_otp = (request.form.get("otp") or "").strip().replace("\n", "").replace("\r", "").strip()
-
+        entered_otp = (request.form.get("otp") or "").strip().replace("\n", "").replace("\r", "")
         print(f"🔍 DEBUG OTP | Entered='{entered_otp}' | Stored='{stored_otp}' | Match={entered_otp == stored_otp}")
 
         if entered_otp == stored_otp:
@@ -77,17 +76,72 @@ def login():
         else:
             print("❌ Invalid OTP entered.")
             return render_template_string("""
-                <h2 style='color:red;'>Invalid OTP</h2>
-                <a href='/login'>Try again</a>
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Invalid OTP</title>
+                    <style>
+                        body { font-family: Arial; text-align: center; margin-top: 100px; }
+                        a { color: #007bff; text-decoration: none; }
+                    </style>
+                </head>
+                <body>
+                    <h2 style='color:red;'>Invalid OTP</h2>
+                    <a href='/login'>Try again</a>
+                </body>
+                </html>
             """)
 
     return render_template_string("""
-        <form method="POST" style="display:flex;flex-direction:column;align-items:center;margin-top:100px;">
-            <h2>Enter Superadmin OTP</h2>
-            <input type="password" name="otp" placeholder="Enter OTP" required style="padding:10px;margin:10px;">
-            <button type="submit" style="padding:8px 16px;">Login</button>
-        </form>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Superadmin Login</title>
+            <style>
+                body { 
+                    font-family: Arial, sans-serif; 
+                    display: flex; 
+                    flex-direction: column; 
+                    align-items: center; 
+                    justify-content: center; 
+                    height: 100vh; 
+                    background-color: #121212;
+                    color: white;
+                }
+                input, button {
+                    padding: 10px; 
+                    margin: 10px;
+                    border: none;
+                    border-radius: 6px;
+                }
+                input {
+                    width: 200px;
+                    text-align: center;
+                }
+                button {
+                    background-color: #4CAF50;
+                    color: white;
+                    cursor: pointer;
+                }
+                button:hover {
+                    background-color: #45a049;
+                }
+            </style>
+        </head>
+        <body>
+            <form method="POST">
+                <h2>Enter Superadmin OTP</h2>
+                <input type="password" name="otp" placeholder="Enter OTP" required>
+                <button type="submit">Login</button>
+            </form>
+        </body>
+        </html>
     """)
+
 
 
 
