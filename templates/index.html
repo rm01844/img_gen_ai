@@ -178,7 +178,7 @@
     <a href="/logout" style="text-decoration: none; color: white;">Logout</a>
   </div>
 
-  <div id="controls">
+ <div id="controls">
     <input id="promptInput" type="text" placeholder="Describe your image..." />
     <select id="aspectRatio">
       <option value="1:1" selected>1:1 (Square)</option>
@@ -196,32 +196,81 @@
     <button onclick="generateImage()">Generate</button>
   </div>
 
-  <div id="loader">🌀 Generating image(s)...</div>
+  <!-- Optional negative prompt (on new line) -->
+  <div id="negativePromptContainer" style="width:90%; max-width:750px; margin-top:8px;">
+    <input id="negativePrompt" 
+          type="text" 
+          placeholder="What to avoid (optional — e.g. blur, text, watermark...)" 
+          style="width:100%; padding:0.9rem; font-size:clamp(0.9rem,1vw,1.1rem); border-radius:8px; border:1px solid #ccc; outline:none;" />
+  </div>
 
+
+  <!-- 🧠 Mode Switch (Generate / Edit) -->
+  <div id="modeSwitch" style="margin-top: 15px; text-align: center;">
+    <label>
+      <input type="radio" name="mode" value="generate" checked> Generate New
+    </label>
+    <label style="margin-left:15px;">
+      <input type="radio" name="mode" value="edit"> Edit Uploaded Image
+      <small id="modeHint" style="color: #666; margin-top:5px;">
+        In edit mode, the image keeps its original dimensions.
+      </small>
+    </label>
+  </div>
+
+  <!-- 📁 Upload Box (visible only in Edit mode) -->
+  <div id="uploadContainer" style="margin-top:10px; display:none; text-align:center;">
+    <input type="file" id="imageUpload" accept="image/*" />
+  </div>
+
+  <!-- 🌀 Loader and Gallery -->
+  <div id="loader">🌀 Generating image(s)...</div>
   <div id="gallery"></div>
+
 
   <script>
     async function generateImage() {
       const prompt = document.getElementById("promptInput").value.trim();
       const aspect_ratio = document.getElementById("aspectRatio").value;
+      const negative_prompt = document.getElementById("negativePrompt").value.trim() || "";
       const number_of_images = document.getElementById("numImages").value;
       const loader = document.getElementById("loader");
       const gallery = document.getElementById("gallery");
+
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+      const imageFile = document.getElementById("imageUpload").files[0];
 
       if (!prompt) {
         alert("Please enter a prompt!");
         return;
       }
 
+      loader.textContent = `🌀 Generating ${number_of_images} image${number_of_images > 1 ? "s" : ""}...`;
       loader.style.display = "block";
       gallery.innerHTML = "";
 
+
       try {
-        const response = await fetch("/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt, aspect_ratio, number_of_images }),
-        });
+        let response;
+        if (mode === "edit" && imageFile) {
+          const formData = new FormData();
+          formData.append("prompt", prompt);
+          formData.append("aspect_ratio", aspect_ratio);
+          formData.append("number_of_images", number_of_images);
+          formData.append("image", imageFile);
+
+          response = await fetch("/edit", {
+            method: "POST",
+            body: formData,
+          });
+        } else {
+          // normal text-to-image
+          response = await fetch("/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt, aspect_ratio, number_of_images, negative_prompt }),
+          });
+        }
 
         const data = await response.json();
         loader.style.display = "none";
@@ -244,6 +293,23 @@
         alert("Error: " + err.message);
       }
     }
+
+    // Toggle Edit/Generate mode behavior
+    document.querySelectorAll('input[name="mode"]').forEach((radio) => {
+      radio.addEventListener("change", (e) => {
+        const isEditMode = e.target.value === "edit";
+        const uploadContainer = document.getElementById("uploadContainer");
+        const aspectRatioSelect = document.getElementById("aspectRatio");
+
+        // Toggle upload visibility
+        uploadContainer.style.display = isEditMode ? "block" : "none";
+
+        // Toggle aspect ratio visibility
+        aspectRatioSelect.style.display = isEditMode ? "none" : "inline-block";
+      });
+    });
+
+
   </script>
 </body>
 </html>
