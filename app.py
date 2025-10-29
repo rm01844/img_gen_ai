@@ -162,6 +162,7 @@ def generate_image():
     try:
         data = request.get_json()
         prompt = data.get("prompt")
+        number_of_images = data.get("number_of_images", "1")
         aspect_ratio = data.get("aspect_ratio", "1:1")
         negative_prompt = data.get("negative_prompt", "")
 
@@ -174,7 +175,7 @@ def generate_image():
         # Generate image
         result = model.generate_images(
             prompt=prompt,
-            number_of_images=1,
+            number_of_images=int(number_of_images),
             aspect_ratio=aspect_ratio,
             negative_prompt=negative_prompt,
             person_generation="allow_all",
@@ -183,25 +184,19 @@ def generate_image():
         )
 
         # Save image to static folder
-        filename = f"generated_{uuid.uuid4().hex}.png"
-        output_path = os.path.join("static", filename)
-        result.images[0].save(output_path)
+        image_urls = []
+        for img in result.images:
+            filename = f"generated_{uuid.uuid4().hex}.png"
+            output_path = os.path.join("static", filename)
+            img.save(output_path)
+            image_urls.append(f"/{output_path}?v={int(time.time())}")
 
         # Return image URL with timestamp (cache-buster)
-        return jsonify({"image_url": f"/{output_path}?v={int(time.time())}"})
+        return jsonify({"image_urls": image_urls})
 
     except Exception as e:
         print("Error:", str(e))
         return jsonify({"error": str(e)}), 500
-
-@app.route("/debug_otp")
-def debug_otp():
-    val = os.getenv("SUPERADMIN_OTP")
-    return {
-        "otp_type": str(type(val)),
-        "otp_raw": repr(val),
-        "otp_len": len(val) if val else 0,
-    }
 
 
 @app.route("/logout")
