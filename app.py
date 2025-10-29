@@ -138,6 +138,15 @@ def generate_image():
         print("Error:", str(e))
         return jsonify({"error": str(e)}), 500
 
+@app.route("/debug_otp")
+def debug_otp():
+    val = os.getenv("SUPERADMIN_OTP")
+    return {
+        "otp_type": str(type(val)),
+        "otp_raw": repr(val),
+        "otp_len": len(val) if val else 0,
+    }
+
 
 @app.route("/logout")
 def logout():
