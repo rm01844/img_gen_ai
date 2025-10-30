@@ -436,6 +436,39 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="🔐 Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#obtaining-the-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔑 Obtaining the Token
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-authenticated-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧩 Example: Authenticated Request
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      📦 Requirements
+    </span>
+  </a>
+  
 </li>
       
         <li class="md-nav__item">
@@ -592,6 +625,39 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="🔐 Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#obtaining-the-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔑 Obtaining the Token
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-authenticated-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧩 Example: Authenticated Request
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      📦 Requirements
+    </span>
+  </a>
+  
 </li>
       
         <li class="md-nav__item">
@@ -669,21 +735,46 @@
 Google Vertex AI’s <strong>Imagen models</strong> through a secure Flask REST interface.</p>
 <hr />
 <h2 id="base-url">🔗 Base URL<a class="headerlink" href="#base-url" title="Permanent link">&para;</a></h2>
-<p>https://web-production-fc79.up.railway.app/</p>
-<p>All routes are relative to this base URL.</p>
+<p>The application is deployed and hosted on <strong>Railway.app</strong>.<br />
+This URL serves as the <strong>root endpoint</strong> for all API requests.</p>
+<p><strong>Base URL:</strong><br />
+<a href="https://web-production-fc79.up.railway.app/">https://web-production-fc79.up.railway.app/</a></p>
+<blockquote>
+<p>Example:<br />
+To access <code>/generate</code>, send a POST request to<br />
+<code>https://web-production-fc79.up.railway.app/generate</code></p>
+</blockquote>
 <hr />
 <h2 id="authentication">🔐 Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
-<p>All API requests require a <strong>Bearer token</strong> header:</p>
+<p>All API endpoints require a valid <strong>Bearer token</strong> to be included in the request header.<br />
+This token is used to authenticate and authorize client requests.</p>
+<p><strong>Header Format:</strong></p>
 <p>Authorization: Bearer <YOUR_API_TOKEN></p>
+<h3 id="obtaining-the-token">🔑 Obtaining the Token<a class="headerlink" href="#obtaining-the-token" title="Permanent link">&para;</a></h3>
+<p>Bearer tokens are provided by the <strong>API administrator</strong> upon onboarding.<br />
+Each client or integration partner will receive a unique token associated with their account.</p>
+<p>If you have not received your token, please contact the API administrator or project owner.</p>
+<blockquote>
+<p>⚠️ <strong>Important:</strong><br />
+- Do <strong>not</strong> share your token publicly or embed it in client-side code.<br />
+- Tokens are tied to your project identity and usage limits.<br />
+- Rotate tokens periodically or immediately if compromised.</p>
+</blockquote>
+<h3 id="example-authenticated-request">🧩 Example: Authenticated Request<a class="headerlink" href="#example-authenticated-request" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>https://web-production-fc79.up.railway.app/generate<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer your_api_token_here&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;prompt&quot;:&quot;a serene landscape with mountains and clouds&quot;}&#39;</span>
+</code></pre></div>
+<hr />
+<h2 id="requirements">📦 Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Each client receives a private token.</li>
-<li>Tokens should never be hard-coded or shared publicly.</li>
+<li><strong>Python 3.10+</strong></li>
+<li><strong>Google Cloud Vertex AI API enabled and copy the API_TOKEN</strong></li>
+<li>A <strong>service account key (.json)</strong> with the <code>Vertex AI User</code> and <code>Storage Admin</code> roles</li>
+<li>Railway.app or Render account for deployment</li>
+<li>MkDocs (optional) for documentation hosting</li>
 </ul>
-<p>Example:
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer your_token_here&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">     </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">     </span>https://web-production-fc79.up.railway.app/generate
-</code></pre></div></p>
 <hr />
 <h2 id="endpoints">✨ Endpoints<a class="headerlink" href="#endpoints" title="Permanent link">&para;</a></h2>
 <h3 id="post-generate"><strong>POST /generate</strong><a class="headerlink" href="#post-generate" title="Permanent link">&para;</a></h3>
@@ -727,13 +818,13 @@ Google Vertex AI’s <strong>Imagen models</strong> through a secure Flask REST 
 </table>
 <p>Example</p>
 <p>{
-  "prompt": "A futuristic city skyline at sunset",
-  "number_of_images": 2,
-  "aspect_ratio": "16:9"
+  <strong>prompt</strong>: "A futuristic city skyline at sunset",
+  <strong>number_of_images</strong>: 2,
+  <strong>aspect_ratio</strong>: "16:9"
 }</p>
 <p>Response</p>
 <p>{
-  "image_urls": [
+  <strong>image_urls</strong>: [
     "/static/generated_8fa3b3.png",
     "/static/generated_19df1d.png"
   ]
@@ -774,20 +865,21 @@ Google Vertex AI’s <strong>Imagen models</strong> through a secure Flask REST 
 </tbody>
 </table>
 <p>Example </p>
-<p>curl -X POST https://web-production-fc79.up.railway.app/edit \
-  -H "Authorization: Bearer <YOUR_API_TOKEN>" \
-  -F "image=@castle.png" \
-  -F "prompt=add fog and a dragon in the sky" \
-  -F "number_of_images=2"</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>https://web-production-fc79.up.railway.app/edit<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer &lt;YOUR_API_TOKEN&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;image=@castle.png&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;prompt=add fog and a dragon in the sky&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;number_of_images=2&quot;</span>
+</code></pre></div>
 <p>Response</p>
 <p>{
-  "image_urls": [
+  <strong>image_urls</strong>: [
     "/static/edited_a13c0d.png",
     "/static/edited_b28d9f.png"
   ]
 }</p>
-<p><strong>Underlying Model</strong>:<strong> imagen-3.0-capability-001
-</strong>Provider:** Google Vertex AI</p>
+<p><strong>Underlying Model</strong>: imagen-3.0-capability-001
+<strong>Provider:</strong> Google Vertex AI</p>
 <h2 id="architecture-overview">Architecture Overview<a class="headerlink" href="#architecture-overview" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>graph TD
   A[Client / SDK / Postman] --&gt;|POST /generate or /edit| B[Flask API (Railway)]
