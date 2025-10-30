@@ -23,17 +23,32 @@ from datetime import timedelta
 from functools import wraps
 from typing import List, Dict, Any
 
-
+# Initialize Flask app
 app = Flask(__name__)
 CORS(app)
 
 app.secret_key = os.getenv("SECRET_KEY")
 
-# Load environment variables
-load_dotenv()
+# Only load .env locally — not on Railway
+if not os.getenv("RAILWAY_ENVIRONMENT"):
+    from dotenv import load_dotenv
+    load_dotenv()
+    print("📦 Loaded local .env file")
+else:
+    print("🚀 Running on Railway — using environment variables")
+
+
+# Handle Vertex AI credentials dynamically (for Railway/Render)
+SERVICE_KEY_JSON = os.getenv("SERVICE_KEY_JSON")
+if SERVICE_KEY_JSON:
+    key_path = os.path.join(tempfile.gettempdir(), "vertex-key.json")
+    with open(key_path, "w") as f:
+        f.write(SERVICE_KEY_JSON)
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = key_path
+
+# Get GCP configuration from environment
 PROJECT_ID = os.getenv("PROJECT_ID")
-LOCATION = os.getenv("LOCATION")
-service_key_json = os.getenv("SERVICE_KEY_JSON")
+LOCATION = os.getenv("LOCATION", "us-central1")
 local_credentials = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]
 credentials = service_account.Credentials.from_service_account_file(
@@ -44,25 +59,12 @@ MODEL_ID = "imagen-3.0-capability-001"
 ENDPOINT = f"https://{LOCATION}-aiplatform.googleapis.com/v1/projects/{PROJECT_ID}/locations/{LOCATION}/publishers/google/models/{MODEL_ID}:predict"
 app.permanent_session_lifetime = timedelta(hours=1)
 
-if service_key_json:
-    # Running on Railway (JSON string from environment)
-    key_path = os.path.join(tempfile.gettempdir(), "vertex-key.json")
-    with open(key_path, "w") as f:
-        f.write(service_key_json)
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = key_path
-    print("✅ Using SERVICE_KEY_JSON from environment")
-elif local_credentials and os.path.exists(local_credentials):
-    # Running locally (path to local .json)
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = local_credentials
-    print(f"✅ Using local credentials: {local_credentials}")
-else:
-    raise FileNotFoundError("❌ Could not find valid credentials.")
-
+if not PROJECT_ID:
+    raise ValueError("PROJECT_ID missing in environment variables")
 
 # Initialize Vertex AI
 vertexai.init(project=PROJECT_ID, location=LOCATION)
 SUPERADMIN_OTP = os.getenv("SUPERADMIN_OTP")
-
 
 def login_required(f):
     """Decorator that restricts access to logged-in admin users."""
@@ -76,8 +78,10 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+# ------------------------------
+# Routes
+# ------------------------------
 
-# ===== Routes =====
 @app.route("/login", methods=["GET", "POST"])
 def login() -> Response:
     """Superadmin login page with OTP validation.
@@ -85,14 +89,11 @@ def login() -> Response:
     Returns:
         Response: Renders the login form or redirects to the index if OTP is valid.
     """
-    stored_otp = (os.getenv("SUPERADMIN_OTP") or "").strip().replace(
-        "\n", "").replace("\r", "").replace(" ", "")
+    stored_otp = (os.getenv("SUPERADMIN_OTP") or "").strip().replace("\n", "").replace("\r", "").replace(" ", "")
 
     if request.method == "POST":
-        entered_otp = (request.form.get("otp") or "").strip().replace(
-            "\n", "").replace("\r", "").replace(" ", "")
-        print(
-            f"🔍 DEBUG OTP | Entered='{entered_otp}' | Stored='{stored_otp}' | Match={entered_otp == stored_otp}")
+        entered_otp = (request.form.get("otp") or "").strip().replace("\n", "").replace("\r", "").replace(" ", "")
+        print(f"🔍 DEBUG OTP | Entered='{entered_otp}' | Stored='{stored_otp}' | Match={entered_otp == stored_otp}")
 
         if entered_otp == stored_otp:
             session.permanent = True
@@ -316,7 +317,7 @@ def edit_image() -> Response:
     except Exception as e:
         print("❌ Error in Imagen 3 Edit:", e)
         return jsonify({"error": str(e)}), 500
-
+    
 
 @app.route("/logout")
 def logout() -> Response:
@@ -326,5 +327,10 @@ def logout() -> Response:
     return redirect(url_for("login"))
 
 
+# ------------------------------
+# Main Entry Point
+# ------------------------------
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    # Railway uses PORT env var, fallback to 8080 for local testing
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port, debug=False)
