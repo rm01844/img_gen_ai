@@ -1,4 +1,12 @@
-from flask import Flask, request, jsonify, render_template, render_template_string, redirect, url_for, session, flash
+"""
+AI Image Generator API
+----------------------
+A Flask application that provides endpoints to generate and edit images using Google Vertex AI's Imagen models.
+
+This module includes authentication, text-to-image generation, and image-editing endpoints.
+"""
+
+from flask import Flask, request, jsonify, render_template, render_template_string, redirect, url_for, session, flash, Response
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
@@ -12,6 +20,8 @@ from vertexai.preview.vision_models import ImageGenerationModel
 from google.auth.transport.requests import Request
 from google.oauth2 import service_account
 from datetime import timedelta
+from functools import wraps
+from typing import List, Dict, Any
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -57,6 +67,7 @@ vertexai.init(project=PROJECT_ID, location=LOCATION)
 SUPERADMIN_OTP = os.getenv("SUPERADMIN_OTP")
 
 def login_required(f):
+    """Decorator that restricts access to logged-in admin users."""
     from functools import wraps
 
     @wraps(f)
@@ -72,7 +83,12 @@ def login_required(f):
 # ------------------------------
 
 @app.route("/login", methods=["GET", "POST"])
-def login():
+def login() -> Response:
+    """Superadmin login page with OTP validation.
+
+    Returns:
+        Response: Renders the login form or redirects to the index if OTP is valid.
+    """
     stored_otp = (os.getenv("SUPERADMIN_OTP") or "").strip().replace("\n", "").replace("\r", "").replace(" ", "")
 
     if request.method == "POST":
@@ -155,20 +171,33 @@ def login():
 
 
 @app.before_request
-def restrict_access():
+def restrict_access() -> Response | None:
+    """Restrict access to authorized users only."""
     if request.endpoint not in ("login", "static") and not session.get("is_admin"):
         return redirect(url_for("login"))
 
 
 @app.route("/")
-def index():
-    """Render the HTML UI."""
+def index() -> Response:
+    """Render the main web interface."""
     return render_template("index.html")
 
 
 @app.route("/generate", methods=["POST"])
-def generate_image():
-    """Generate an image using Vertex AI Imagen 4.0."""
+def generate_image() -> Response:
+    """Generate image(s) using Vertex AI Imagen model.
+
+    This endpoint generates one or more images based on the user's prompt and options.
+
+    Request Body (JSON):
+        prompt (str): The image description to generate.
+        number_of_images (int, optional): Number of images to generate (default=1).
+        aspect_ratio (str, optional): Aspect ratio, e.g. "1:1" or "16:9".
+        negative_prompt (str, optional): Objects/concepts to avoid.
+
+    Returns:
+        Response: JSON containing a list of image URLs or an error message.
+    """
     try:
         data = request.get_json()
         prompt = data.get("prompt")
@@ -210,7 +239,19 @@ def generate_image():
 
 
 @app.route("/edit", methods=["POST"])
-def edit_image():
+def edit_image() -> Response:
+    """Edit an uploaded image using Vertex AI Imagen model.
+
+    This endpoint accepts an image file and prompt to generate edited variants.
+
+    Request Form Data:
+        image (file): The uploaded image file to modify.
+        prompt (str): The description of desired changes.
+        number_of_images (int, optional): Number of variations to generate.
+
+    Returns:
+        Response: JSON containing a list of edited image URLs.
+    """
     try:
         prompt = request.form.get("prompt", "").strip() or "Modify this image"
         number_of_images = int(request.form.get("number_of_images", 1))
@@ -279,7 +320,8 @@ def edit_image():
     
 
 @app.route("/logout")
-def logout():
+def logout() -> Response:
+    """Log out the current admin session."""
     session.pop("is_admin", None)
     print("👋 Superadmin logged out.")
     return redirect(url_for("login"))
