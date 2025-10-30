@@ -1,0 +1,22 @@
+Metadata-Version: 2.4
+Name: img-gen-ai
+Version: 1.0.0
+Summary: Flask-based AI Image Generator using Vertex AI Imagen 3.0
+Author-email: Raqeeb Mohamad Rafeek <your-email@example.com>
+License: MIT
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: flask
+Requires-Dist: flask-cors
+Requires-Dist: python-dotenv
+Requires-Dist: vertexai
+Requires-Dist: google-auth
+Requires-Dist: google-auth-oauthlib
+Requires-Dist: requests
+Requires-Dist: pillow
+Provides-Extra: docs
+Requires-Dist: mkdocs; extra == "docs"
+Requires-Dist: mkdocs-material; extra == "docs"
+Requires-Dist: mkdocstrings[python]; extra == "docs"
+Requires-Dist: mkdocs-autorefs; extra == "docs"
+Requires-Dist: mkdocs-glightbox; extra == "docs"

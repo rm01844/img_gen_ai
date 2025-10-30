@@ -1,0 +1,15 @@
+flask
+flask-cors
+python-dotenv
+vertexai
+google-auth
+google-auth-oauthlib
+requests
+pillow
+
+[docs]
+mkdocs
+mkdocs-material
+mkdocstrings[python]
+mkdocs-autorefs
+mkdocs-glightbox

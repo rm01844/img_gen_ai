@@ -1,0 +1,47 @@
+site_name: AI Image Generator API
+site_description: Documentation for the Flask-based AI Image Generator powered by Vertex AI
+site_author: Raqeeb Mohamad Rafeek
+repo_url: https://github.com/rm01844/img_gen_ai
+
+nav:
+  - Home: index.md
+  - Reference:
+      - API Endpoints: reference/api.md
+      - Application Overview: reference/app.md
+  - Deployment Guide: deployment.md
+
+theme:
+  name: material
+  features:
+    - navigation.expand
+    - navigation.tabs
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+  palette:
+    primary: blue
+    accent: cyan
+  favicon: images/favicon.ico
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - footnotes
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          setup_commands:
+            - import sys
+            - sys.path.append(".") # 👈 ensures MkDocs finds your module
+          options:
+            show_source: true
+            show_signature: true
+            docstring_style: google
+            separate_signature: true

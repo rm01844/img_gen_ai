@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "img-gen-ai"
+version = "1.0.0"
+description = "Flask-based AI Image Generator using Vertex AI Imagen 3.0"
+authors = [
+  { name = "Raqeeb Mohamad Rafeek", email = "your-email@example.com" }
+]
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+
+dependencies = [
+  "flask",
+  "flask-cors",
+  "python-dotenv",
+  "vertexai",
+  "google-auth",
+  "google-auth-oauthlib",
+  "requests",
+  "pillow"
+]
+
+[project.optional-dependencies]
+docs = [
+  "mkdocs",
+  "mkdocs-material",
+  "mkdocstrings[python]",
+  "mkdocs-autorefs",
+  "mkdocs-glightbox"
+]
+
+[tool.setuptools.packages.find]
+where = ["img_gen_ai"]
+
+[tool.mkdocs]
+config_file = "mkdocs.yml"
+

@@ -1,0 +1,6 @@
+pyproject.toml
+img_gen_ai/img_gen_ai.egg-info/PKG-INFO
+img_gen_ai/img_gen_ai.egg-info/SOURCES.txt
+img_gen_ai/img_gen_ai.egg-info/dependency_links.txt
+img_gen_ai/img_gen_ai.egg-info/requires.txt
+img_gen_ai/img_gen_ai.egg-info/top_level.txt
