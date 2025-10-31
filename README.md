@@ -6,6 +6,11 @@
 A production-ready **Flask web app** that integrates **Google Vertex AI Imagen 4.0** for AI-driven image generation.  
 Includes **Superadmin OTP authentication**, **responsive frontend**, and **easy deployment** on **Railway** or **Render**.
 
+## 📘 Documentation
+
+Official hosted documentation:  
+[https://raqeebmohamad.github.io/img_gen_ai/](https://raqeebmohamad.github.io/img_gen_ai/)
+
 ---
 
 ## 🚀 Features
