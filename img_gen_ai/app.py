@@ -225,9 +225,13 @@ def generate_image() -> Response:
         # Save image to static folder
         image_urls = []
         for img in result.images:
+            static_dir = os.path.join(os.path.dirname(__file__), "static")
+            os.makedirs(static_dir, exist_ok=True)
+            
             filename = f"generated_{uuid.uuid4().hex}.png"
-            output_path = os.path.join("static", filename)
+            output_path = os.path.join(static_dir, filename)
             img.save(output_path)
+
             image_urls.append(f"/{output_path}?v={int(time.time())}")
 
         # Return image URL with timestamp (cache-buster)
@@ -306,8 +310,12 @@ def edit_image() -> Response:
             data_b64 = pred.get("bytesBase64Encoded")
             if not data_b64:
                 continue
+            static_dir = os.path.join(os.path.dirname(__file__), "static")
+            os.makedirs(static_dir, exist_ok=True)
+            
             filename = f"edited_{uuid.uuid4().hex}.png"
-            out_path = os.path.join("static", filename)
+            output_path = os.path.join(static_dir, filename)
+
             with open(out_path, "wb") as f:
                 f.write(base64.b64decode(data_b64))
             image_urls.append(f"/{out_path}?v={int(time.time())}")
