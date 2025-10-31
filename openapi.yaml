@@ -1,0 +1,114 @@
+# yaml-language-server: $schema=https://spec.openapis.org/oas/3.0/schema/2021-09-28
+# This file intentionally uses non-templated production URLs (valid but linter-noisy)
+
+openapi: 3.0.3
+info:
+  title: AI Image Generation API
+  version: 1.0.0
+  description: >
+    REST API for generating and editing images using Google Vertex AI Imagen models.
+    Built with Flask and deployed on Railway.
+servers:
+  - url: "https://web-production-fc79.up.railway.app"
+    description: Production Server
+
+security:
+  - BearerAuth: []
+
+paths:
+  /generate:
+    post:
+      summary: Generate an image from a text prompt
+      operationId: generateImage
+      description: |
+        Generate one or more images from a given text prompt using Vertex AI Imagen 4.0.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  description: Text prompt describing the image
+                number_of_images:
+                  type: integer
+                  default: 1
+                  description: Number of images to generate
+                aspect_ratio:
+                  type: string
+                  default: "1:1"
+                  description: Aspect ratio like "16:9", "9:16", or "4:3"
+                negative_prompt:
+                  type: string
+                  description: Optional negative guidance
+              required:
+                - prompt
+      responses:
+        "200":
+          description: Successfully generated images
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  image_urls:
+                    type: array
+                    items:
+                      type: string
+        "400":
+          description: Invalid request
+        "401":
+          description: Unauthorized access
+        "500":
+          description: Server error
+
+  /edit:
+    post:
+      summary: Edit an uploaded image with a prompt
+      operationId: editImage
+      description: >
+        Upload an image and provide a text prompt to apply visual edits using Vertex AI Imagen 3.0.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Image file to edit
+                prompt:
+                  type: string
+                  description: Instruction for how the image should be changed
+                number_of_images:
+                  type: integer
+                  default: 1
+      responses:
+        "200":
+          description: Successfully edited images
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  image_urls:
+                    type: array
+                    items:
+                      type: string
+        "400":
+          description: Invalid input or missing image
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

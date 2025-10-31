@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#ai-image-generator-api" class="md-skip">
+        <a href="#ai-image-generation-api-documentation" class="md-skip">
           Skip to content
         </a>
       
@@ -249,6 +249,25 @@
   
 
       
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="openapi.yaml" class="md-tabs__link">
+        
+  
+  
+    
+  
+  OpenAPI
+
+      </a>
+    </li>
+  
+
+      
     </ul>
   </div>
 </nav>
@@ -351,11 +370,59 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#documentation-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      📘 Documentation Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Quick Start
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 Quick Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#base-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      Base URL
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#endpoints" class="md-nav__link">
     <span class="md-ellipsis">
       🔧 Endpoints
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="🔧 Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#available-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧠 Available Models
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -485,6 +552,28 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="openapi.yaml" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OpenAPI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -512,11 +601,59 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#documentation-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      📘 Documentation Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Quick Start
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 Quick Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#base-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      Base URL
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#endpoints" class="md-nav__link">
     <span class="md-ellipsis">
       🔧 Endpoints
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="🔧 Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#available-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧠 Available Models
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -539,9 +676,45 @@
   
 
 
-<h1 id="ai-image-generator-api">AI Image Generator API<a class="headerlink" href="#ai-image-generator-api" title="Permanent link">&para;</a></h1>
-<p>This API allows users to generate and edit images using Google Vertex AI’s Imagen model.</p>
+<h1 id="ai-image-generation-api-documentation">🧠 AI Image Generation API Documentation<a class="headerlink" href="#ai-image-generation-api-documentation" title="Permanent link">&para;</a></h1>
+<p>Welcome to the <strong>AI Image Generation &amp; Editing API</strong>, powered by <strong>Google Vertex AI (Imagen Models)</strong> and deployed securely on <strong>Railway</strong>.</p>
+<p>This service allows developers to:
+- 🎨 Generate images from text prompts
+- 🪄 Edit existing images using AI guidance
+- 🔐 Access both web UI and REST API endpoints with token-based authentication</p>
 <hr />
+<h2 id="documentation-overview">📘 Documentation Overview<a class="headerlink" href="#documentation-overview" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="reference/api/">🧩 API Reference</a></td>
+<td>Details of each endpoint (<code>/generate</code>, <code>/edit</code>), request/response formats, and sample payloads</td>
+</tr>
+<tr>
+<td><a href="reference/app/">🧰 Application Overview</a></td>
+<td>Explains how the Flask app, Vertex AI integration, and authentication system work</td>
+</tr>
+<tr>
+<td><a href="deployment/">🚀 Deployment Guide</a></td>
+<td>Step-by-step guide for deploying to Railway or another cloud platform</td>
+</tr>
+<tr>
+<td><a href="openapi.yaml">📄 OpenAPI Spec</a></td>
+<td>Swagger schema to auto-import into Postman / Insomnia / client SDKs</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quick-start">🚀 Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="base-url">Base URL<a class="headerlink" href="#base-url" title="Permanent link">&para;</a></h3>
+<p><a href="https://web-production-fc79.up.railway.app/">https://web-production-fc79.up.railway.app/</a></p>
+<p>All endpoints are relative to this base URL.</p>
 <h2 id="endpoints">🔧 Endpoints<a class="headerlink" href="#endpoints" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -574,6 +747,37 @@
 </tr>
 </tbody>
 </table>
+<h3 id="available-models">🧠 Available Models<a class="headerlink" href="#available-models" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Model ID</th>
+<th>Version</th>
+<th>Provider</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Text → Image</td>
+<td><code>imagen-4.0-generate-001</code></td>
+<td>v4.0</td>
+<td>Google Vertex AI</td>
+</tr>
+<tr>
+<td>Image → Image (Edit)</td>
+<td><code>imagen-3.0-capability-001</code></td>
+<td>v3.0</td>
+<td>Google Vertex AI</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p>🧭 Navigation
+For API details → start with API Reference</p>
+<p>For deployment or local setup → see Deployment Guide</p>
+<p>For technical app overview → see Application Structure</p>
+<p>For client-side import → use OpenAPI Spec</p>
 
 
 
