@@ -9,7 +9,7 @@ Includes **Superadmin OTP authentication**, **responsive frontend**, and **easy 
 ## 📘 Documentation
 
 Official hosted documentation:  
-[https://raqeebmohamad.github.io/img_gen_ai/](https://raqeebmohamad.github.io/img_gen_ai/)
+[https://rm01844.github.io/img_gen_ai/](https://rm01844.github.io/img_gen_ai/)
 
 ---
 
