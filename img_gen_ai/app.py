@@ -316,9 +316,9 @@ def edit_image() -> Response:
             filename = f"edited_{uuid.uuid4().hex}.png"
             output_path = os.path.join(static_dir, filename)
 
-            with open(out_path, "wb") as f:
+            with open(output_path, "wb") as f:
                 f.write(base64.b64decode(data_b64))
-            image_urls.append(f"/{out_path}?v={int(time.time())}")
+            image_urls.append(f"/{output_path}?v={int(time.time())}")
 
         return jsonify({"image_urls": image_urls})
 
