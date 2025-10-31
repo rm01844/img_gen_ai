@@ -1,0 +1,67 @@
+{
+  "info": {
+    "name": "AI Image Generator API",
+    "_postman_id": "9e7e6d25-4fcd-4e11-a4be-bd6b45a71b1b",
+    "description": "Test collection for the AI Image Generator API using Flask and Google Vertex AI Imagen models.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Generate Image",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer <YOUR_API_TOKEN>" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"prompt\": \"A futuristic city skyline at sunset\",\n  \"number_of_images\": 1,\n  \"aspect_ratio\": \"16:9\"\n}"
+        },
+        "url": {
+          "raw": "https://web-production-fc79.up.railway.app/generate",
+          "protocol": "https",
+          "host": ["web-production-fc79", "up", "railway", "app"],
+          "path": ["generate"]
+        }
+      }
+    },
+    {
+      "name": "Edit Image",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer <YOUR_API_TOKEN>" }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "prompt", "value": "Add mist and sunlight rays", "type": "text" },
+            { "key": "number_of_images", "value": "2", "type": "text" },
+            { "key": "image", "src": "castle.png", "type": "file" }
+          ]
+        },
+        "url": {
+          "raw": "https://web-production-fc79.up.railway.app/edit",
+          "protocol": "https",
+          "host": ["web-production-fc79", "up", "railway", "app"],
+          "path": ["edit"]
+        }
+      }
+    },
+    {
+      "name": "Login Page",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://web-production-fc79.up.railway.app/login",
+          "protocol": "https",
+          "host": ["web-production-fc79", "up", "railway", "app"],
+          "path": ["login"]
+        }
+      }
+    }
+  ]
+}
+
