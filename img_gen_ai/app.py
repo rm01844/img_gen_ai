@@ -232,7 +232,8 @@ def generate_image() -> Response:
             output_path = os.path.join(static_dir, filename)
             img.save(output_path)
 
-            image_urls.append(f"/{output_path}?v={int(time.time())}")
+            filename = os.path.basename(output_path)
+            image_urls.append(f"/static/{filename}?v={int(time.time())}")
 
         # Return image URL with timestamp (cache-buster)
         return jsonify({"image_urls": image_urls})
@@ -304,21 +305,28 @@ def edit_image() -> Response:
         response.raise_for_status()
         result = response.json()
 
-        # Save results
+        predictions = result.get("predictions", [])
+        if not predictions:
+            print("⚠️ No predictions returned by Vertex AI:", result)
+            return jsonify({"error": "Model returned no results — likely filtered or rejected."}), 400
+
+        # Ensure static dir exists
+        static_dir = os.path.join(os.path.dirname(__file__), "static")
+        os.makedirs(static_dir, exist_ok=True)
+
+        # Save decoded images
         image_urls = []
-        for pred in result.get("predictions", []):
+        for pred in predictions:
             data_b64 = pred.get("bytesBase64Encoded")
             if not data_b64:
                 continue
-            static_dir = os.path.join(os.path.dirname(__file__), "static")
-            os.makedirs(static_dir, exist_ok=True)
-            
+
             filename = f"edited_{uuid.uuid4().hex}.png"
             output_path = os.path.join(static_dir, filename)
-
             with open(output_path, "wb") as f:
                 f.write(base64.b64decode(data_b64))
-            image_urls.append(f"/{output_path}?v={int(time.time())}")
+
+            image_urls.append(f"/static/{filename}?v={int(time.time())}")
 
         return jsonify({"image_urls": image_urls})
 
