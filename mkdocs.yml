@@ -9,6 +9,7 @@ nav:
       - API Endpoints: reference/api.md
       - Application Overview: reference/app.md
   - Deployment Guide: deployment.md
+  - OpenAPI: openapi.yaml
 
 theme:
   name: material
@@ -21,6 +22,7 @@ theme:
   palette:
     primary: blue
     accent: cyan
+    schema: slate
   favicon: images/favicon.ico
 
 markdown_extensions:
