@@ -1350,7 +1350,7 @@
             <span class="sa">f</span><span class="s2">&quot;Make it concise, photo-realistic, and layout-explicit.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
             <span class="sa">f</span><span class="s2">&quot;Prompt: </span><span class="si">{</span><span class="n">raw_prompt</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">Reference: </span><span class="si">{</span><span class="n">reference_description</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;⚠️ Gemini refinement failed:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">raw_prompt</span>
@@ -1498,7 +1498,7 @@
 
 <details class="it-performs" open>
   <summary>It performs</summary>
-  <p>1️⃣ Prompt refinement via Gemini 1.5 Pro
+  <p>1️⃣ Prompt refinement via Gemini 2.5 Pro
 2️⃣ Image editing via Vertex AI Imagen 3
 3️⃣ Gemini Vision feedback + re-generation</p>
 </details>
@@ -1584,7 +1584,7 @@
 <span class="sd">      - Optional number_of_images parameter</span>
 
 <span class="sd">    It performs:</span>
-<span class="sd">      1️⃣ Prompt refinement via Gemini 1.5 Pro</span>
+<span class="sd">      1️⃣ Prompt refinement via Gemini 2.5 Pro</span>
 <span class="sd">      2️⃣ Image editing via Vertex AI Imagen 3</span>
 <span class="sd">      3️⃣ Gemini Vision feedback + re-generation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1620,7 +1620,7 @@
                     <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;parts&quot;</span><span class="p">:</span> <span class="p">[</span>
                         <span class="p">{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Prompt used: </span><span class="si">{</span><span class="n">refined_prompt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">},</span>
                         <span class="p">{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Check if layout and identity match intended description.&quot;</span><span class="p">},</span>
-                        <span class="p">{</span><span class="s2">&quot;image_url&quot;</span><span class="p">:</span> <span class="n">image_urls</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+                        <span class="p">{</span><span class="s2">&quot;image_urls&quot;</span><span class="p">:</span> <span class="n">image_urls</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
                     <span class="p">]}</span>
                 <span class="p">])</span>
                 <span class="n">revised_prompt</span> <span class="o">=</span> <span class="n">feedback</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
