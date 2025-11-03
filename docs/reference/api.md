@@ -101,15 +101,47 @@ Response
 
 ### **POST /edit**
 
-Edit or transform an uploaded image using a text prompt.
+This endpoint enables **AI-powered image editing** by combining  
+Google **Gemini 2.5 Pro** (for intelligent prompt refinement and feedback)  
+with **Vertex AI Imagen 3.0** (for photo-realistic image generation).
+
+---
+
+### 🧩 Workflow Overview
+
+1. **Prompt Refinement (Gemini 2.5 Pro)**
+   - The user’s raw text prompt is rewritten by Gemini to be concise, spatially descriptive, and better aligned with Imagen’s generation semantics.
+   - Example transformation:  
+     > _"Turn this person into an action figure in orange packaging"_  
+     → _"Create a high-resolution product photo of the same person as a realistic action figure packaged in an orange blister pack with accessories arranged symmetrically and a name label at the top."_
+
+2. **Image Generation (Vertex AI Imagen 3.0)**
+   - The refined prompt and uploaded reference image are sent to Imagen to produce the edited output.
+
+3. **Automated Feedback (Gemini Vision Review)**
+   - Gemini optionally evaluates the generated image for identity and layout consistency,  
+     then suggests a refined prompt for re-generation to improve results.
+
+---
+
+### 🔐 Authentication
+
+All requests must include a valid **Bearer Token** in the HTTP header:
+
+```bash
+Authorization: Bearer <YOUR_API_TOKEN> 
+```
 
 Request (multipart/form-data)
 
-| Field              | Type   | Required | Description                                  |
-| ------------------ | ------ | -------- | -------------------------------------------- |
-| `image`            | file   | ✅        | The source image to edit                     |
-| `prompt`           | string | ✅        | The modification description                 |
-| `number_of_images` | int    | ❌        | Default: `1`, number of variations to return |
+| Field              | Type   | Required | Description                                           |
+| ------------------ | ------ | -------- | ----------------------------------------------------- |
+| `image`            | file   | ✅       | The source image to edit                              |
+| `prompt`           | string | ✅       | Natural-language description of desired changes       |
+| `number_of_images` | int    | ❌       | Default: `1`, number of variations to return          |
+| `negative_prompt`  | string | ❌       | Optional text describing elements to avoid.           |
+| `edit_strength`    | float  | ❌       | Degree of transformation, range 0.1–1.0 (default 0.55)|
+| `enhance_detail`   | bool   | ❌       | Enhance visual detail and sharpness (true by default) |
 
 
 Example 
@@ -117,8 +149,8 @@ Example
 ```bash
 curl -X POST https://web-production-fc79.up.railway.app/edit \
   -H "Authorization: Bearer <YOUR_API_TOKEN>" \
-  -F "image=@castle.png" \
-  -F "prompt=add fog and a dragon in the sky" \
+  -F "image=@ben_philip.jpg" \
+  -F "prompt=Create a photo-realistic action figure of the same person in orange packaging with accessories neatly arranged." \
   -F "number_of_images=2"
 ```
 
@@ -131,18 +163,20 @@ Response
   ]
 }
 
-**Underlying Model**: imagen-3.0-capability-001
+**Underlying Model**: imagen-3.0-capability-001 + Gemini 1.5 Pro
 **Provider:** Google Vertex AI
 
 ## Architecture Overview
 
 ```mermaid
 graph TD
-  A[Client / SDK / Postman] -->|POST /generate or /edit| B[Flask API (Railway)]
-  B -->|Bearer Token| C[Auth Middleware]
-  B -->|Vertex API call| D[Google Imagen Models (v3/v4)]
-  D -->|Base64 images| B
-  B -->|JSON response| A
+  A[Client Request (POST /edit)] --> B[Flask API (Python)]
+  B -->|Multipart form: prompt + image| C[Gemini 2.5 Pro (Prompt Refinement)]
+  C -->|Refined prompt| D[Vertex AI Imagen 3.0 (Image Editing)]
+  D -->|Generated image URLs| E[Gemini Vision Review (Optional Feedback)]
+  E -->|Revised prompt (if needed)| D
+  D -->|Final image URLs| F[Flask API Response]
+  F -->|JSON Response| G[Client (Web UI / API Consumer)]
 ```
 
 ## ⚠️ Error Handling
