@@ -42,6 +42,7 @@ All endpoints are relative to this base URL.
 |-----------|-----------|----------|-----------|
 | Text → Image | `imagen-4.0-generate-001` | v4.0 | Google Vertex AI |
 | Image → Image (Edit) | `imagen-3.0-capability-001` | v3.0 | Google Vertex AI |
+| Text → Text (Prompt) | `gemini 2.5-pro` | v2.5 | Google Vertex AI |
 
 ---
 
