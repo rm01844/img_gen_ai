@@ -98,6 +98,7 @@ Response
 **Underlying Model:** imagen-4.0-generate-001
 **Provider:** Google Vertex AI
 
+---
 
 ### **POST /edit**
 
