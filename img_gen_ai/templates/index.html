@@ -31,8 +31,15 @@
       --button-text: #000;
     }
 
+    /* 🌓 Dark mode background override */
+    .dark-mode body {
+      background-color: #2d2d2d;   /* smooth dark gray */
+      background-image: none;      /* removes the gradient */
+    }
+
+
     * {
-      transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+      transition: background-color 0.4s ease, color 0.4s ease, border-color 0.3s;
     }
 
     * {
@@ -565,6 +572,50 @@
       color: var(--text);
       margin: 0;
     }
+
+    /* -------------------------------------------------------------
+      🌓 Fix for Inputs and Selects Visibility in Dark Mode
+    -------------------------------------------------------------- */
+
+    /* Default appearance */
+    input, select, textarea {
+      background-color: #f9f9f9;
+      color: #111;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    /* Dark mode override */
+    .dark-mode input,
+    .dark-mode select,
+    .dark-mode textarea {
+      background-color: #222;   /* slightly lighter than background for contrast */
+      color: #fff;              /* white text for visibility */
+      border: 1px solid #555;   /* subtle border to stand out */
+    }
+
+    /* Optional hover/focus enhancements */
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+    }
+
+    .dark-mode input:focus,
+    .dark-mode select:focus,
+    .dark-mode textarea:focus {
+      border-color: #66b3ff;
+      box-shadow: 0 0 6px rgba(102, 179, 255, 0.4);
+    }
+
+    /* Placeholder visibility in dark mode */
+    .dark-mode ::placeholder {
+      color: #bbb;
+    }
+
 
   </style>
 </head>
