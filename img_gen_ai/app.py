@@ -12,7 +12,7 @@ from IPython.display import Image as IPyImage
 from google import genai
 from google.genai.types import GenerateContentConfig, Part
 from PIL import Image, ImageEnhance
-from insightface.app import FaceAnalysis
+# from insightface.app import FaceAnalysis
 import numpy as np
 import cv2
 from vertexai.generative_models import GenerativeModel
@@ -119,224 +119,224 @@ SUPERADMIN_OTP = os.getenv("SUPERADMIN_OTP")
 gemini = GenerativeModel("gemini-2.5-pro")
 
 # Face detection (lazy load)
-_face_app = None
+# _face_app = None
 
 # ============================================================================
 # HELPER FUNCTIONS
 # ============================================================================
 
-def get_face_app():
-    """Lazy initialization of face detection"""
-    global _face_app
-    if _face_app is None:
-        _face_app = FaceAnalysis(name="buffalo_l", providers=[
-                                 "CPUExecutionProvider"])
-        _face_app.prepare(ctx_id=0)
-    return _face_app
+# def get_face_app():
+#     """Lazy initialization of face detection"""
+#     global _face_app
+#     if _face_app is None:
+#         _face_app = FaceAnalysis(name="buffalo_l", providers=[
+#                                  "CPUExecutionProvider"])
+#         _face_app.prepare(ctx_id=0)
+#     return _face_app
 
 
-def extract_skin_tone_description(img_path: str) -> str:
-    """
-    Extract detailed skin tone information from the reference image.
-    Returns a description that can be used in prompts to preserve ethnicity.
-    """
-    try:
-        face_app = get_face_app()
-        img = cv2.imread(img_path)
-        if img is None:
-            return ""
+# def extract_skin_tone_description(img_path: str) -> str:
+#     """
+#     Extract detailed skin tone information from the reference image.
+#     Returns a description that can be used in prompts to preserve ethnicity.
+#     """
+#     try:
+#         face_app = get_face_app()
+#         img = cv2.imread(img_path)
+#         if img is None:
+#             return ""
 
-        faces = face_app.get(img)
-        if not faces:
-            return ""
+#         faces = face_app.get(img)
+#         if not faces:
+#             return ""
 
-        # Get the largest face
-        face = max(faces, key=lambda f: (
-            f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]))
-        x1, y1, x2, y2 = face.bbox.astype(int)
+#         # Get the largest face
+#         face = max(faces, key=lambda f: (
+#             f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]))
+#         x1, y1, x2, y2 = face.bbox.astype(int)
 
-        # Extract face region
-        face_region = img[y1:y2, x1:x2]
+#         # Extract face region
+#         face_region = img[y1:y2, x1:x2]
 
-        # Calculate average color in LAB space (more perceptually uniform)
-        face_lab = cv2.cvtColor(face_region, cv2.COLOR_BGR2LAB)
-        avg_color = np.mean(face_lab, axis=(0, 1))
+#         # Calculate average color in LAB space (more perceptually uniform)
+#         face_lab = cv2.cvtColor(face_region, cv2.COLOR_BGR2LAB)
+#         avg_color = np.mean(face_lab, axis=(0, 1))
 
-        L, a, b = avg_color
+#         L, a, b = avg_color
 
-        # Classify skin tone based on L channel and a/b values
-        if L > 200:
-            tone = "very fair skin tone with pale complexion"
-        elif L > 170:
-            tone = "fair skin tone with light complexion"
-        elif L > 140:
-            tone = "medium-light skin tone with warm undertones"
-        elif L > 110:
-            tone = "medium skin tone with neutral undertones"
-        elif L > 80:
-            tone = "medium-dark skin tone with olive undertones"
-        elif L > 50:
-            tone = "dark skin tone with rich brown complexion"
-        else:
-            tone = "very dark skin tone with deep brown complexion"
+#         # Classify skin tone based on L channel and a/b values
+#         if L > 200:
+#             tone = "very fair skin tone with pale complexion"
+#         elif L > 170:
+#             tone = "fair skin tone with light complexion"
+#         elif L > 140:
+#             tone = "medium-light skin tone with warm undertones"
+#         elif L > 110:
+#             tone = "medium skin tone with neutral undertones"
+#         elif L > 80:
+#             tone = "medium-dark skin tone with olive undertones"
+#         elif L > 50:
+#             tone = "dark skin tone with rich brown complexion"
+#         else:
+#             tone = "very dark skin tone with deep brown complexion"
 
-        # Add undertone information based on a and b channels
-        if a < -5:
-            tone += ", greenish undertones"
-        elif b > 15:
-            tone += ", warm golden undertones"
-        elif b < 0:
-            tone += ", cool blue undertones"
+#         # Add undertone information based on a and b channels
+#         if a < -5:
+#             tone += ", greenish undertones"
+#         elif b > 15:
+#             tone += ", warm golden undertones"
+#         elif b < 0:
+#             tone += ", cool blue undertones"
 
-        return tone
-    except Exception as e:
-        print(f"⚠️ Skin tone extraction failed: {e}")
-        return ""
-
-
-def build_improved_edit_prompt(user_prompt: str, skin_tone_desc: str = "") -> str:
-    """
-    Build a structured prompt that enforces constraints while allowing creative changes.
-    """
-    # Parse the user prompt to identify key elements
-    lines = [ln.strip() for ln in user_prompt.split("\n") if ln.strip()]
-
-    # Build constraint section
-    constraint_text = f"""STRICT IDENTITY CONSTRAINTS:
-- Maintain EXACT facial features, proportions, and bone structure from reference
-- Preserve EXACT skin tone: {skin_tone_desc or "match the reference image precisely"}
-- Keep original ethnicity and racial characteristics unchanged
-- Do NOT alter, lighten, or darken skin color under any circumstances
-
-COMPOSITION RULES:
-- Follow the layout description precisely
-- Only include objects explicitly mentioned in the prompt
-- Do NOT add weapons, guns, sticks, or any items not specified
-- Arrange items exactly as described in numbered lists
-- Use clean, minimal composition without extra clutter
-
-EDIT INSTRUCTIONS:
-{chr(10).join([f"• {ln}" for ln in lines])}
-
-TECHNICAL QUALITY:
-- Studio lighting with soft shadows
-- Professional product photography style
-- Sharp focus on main subject
-- Natural color rendering (avoid oversaturation)
-- Clean white or neutral background unless specified otherwise"""
-
-    return constraint_text
+#         return tone
+#     except Exception as e:
+#         print(f"⚠️ Skin tone extraction failed: {e}")
+#         return ""
 
 
-def refine_prompt_with_gemini(raw_prompt: str, skin_tone: str = "") -> str:
-    """Use Gemini to restructure prompt with strict constraints."""
-    try:
-        if not raw_prompt.strip():
-            return "Modify this image while preserving all facial features and skin tone."
+# def build_improved_edit_prompt(user_prompt: str, skin_tone_desc: str = "") -> str:
+#     """
+#     Build a structured prompt that enforces constraints while allowing creative changes.
+#     """
+#     # Parse the user prompt to identify key elements
+#     lines = [ln.strip() for ln in user_prompt.split("\n") if ln.strip()]
 
-        system_instruction = f"""You are a prompt engineer for Google Vertex Imagen 3 image editing API.
-Rewrite this prompt to be:
-1. EXTREMELY EXPLICIT about preserving the person's exact facial features and skin tone
-2. HIGHLY STRUCTURED with clear numbered steps for layout
-3. SPECIFIC about what NOT to include (e.g., no weapons, no extra objects)
+#     # Build constraint section
+#     constraint_text = f"""STRICT IDENTITY CONSTRAINTS:
+# - Maintain EXACT facial features, proportions, and bone structure from reference
+# - Preserve EXACT skin tone: {skin_tone_desc or "match the reference image precisely"}
+# - Keep original ethnicity and racial characteristics unchanged
+# - Do NOT alter, lighten, or darken skin color under any circumstances
 
-CRITICAL RULES:
-- Always start with: "IDENTITY PRESERVATION: Keep the exact face, {skin_tone or 'skin tone'}, and proportions from the reference."
-- Break complex layouts into numbered steps
-- List items to EXCLUDE in a "DO NOT ADD" section
-- Use professional photography terminology
-- Keep it under 500 words
+# COMPOSITION RULES:
+# - Follow the layout description precisely
+# - Only include objects explicitly mentioned in the prompt
+# - Do NOT add weapons, guns, sticks, or any items not specified
+# - Arrange items exactly as described in numbered lists
+# - Use clean, minimal composition without extra clutter
 
-Original prompt: {raw_prompt}"""
+# EDIT INSTRUCTIONS:
+# {chr(10).join([f"• {ln}" for ln in lines])}
 
-        response = gemini.generate_content(system_instruction)
-        refined = getattr(response, "text", "") or ""
+# TECHNICAL QUALITY:
+# - Studio lighting with soft shadows
+# - Professional product photography style
+# - Sharp focus on main subject
+# - Natural color rendering (avoid oversaturation)
+# - Clean white or neutral background unless specified otherwise"""
 
-        if not refined.strip() or len(refined.strip()) < 10:
-            print("⚠️ Gemini returned empty text, using fallback")
-            return build_improved_edit_prompt(raw_prompt, skin_tone)
-
-        return refined.strip()
-    except Exception as e:
-        print(f"⚠️ Gemini refinement failed: {e}")
-        return build_improved_edit_prompt(raw_prompt, skin_tone)
+#     return constraint_text
 
 
-def apply_skin_tone_preservation(reference_path: str, generated_path: str) -> None:
-    """
-    Apply aggressive color correction to match reference skin tone.
-    Runs AFTER generation to fix any tone drift.
-    """
-    try:
-        face_app = get_face_app()
+# def refine_prompt_with_gemini(raw_prompt: str, skin_tone: str = "") -> str:
+#     """Use Gemini to restructure prompt with strict constraints."""
+#     try:
+#         if not raw_prompt.strip():
+#             return "Modify this image while preserving all facial features and skin tone."
 
-        ref_img = cv2.imread(reference_path)
-        gen_img = cv2.imread(generated_path)
+#         system_instruction = f"""You are a prompt engineer for Google Vertex Imagen 3 image editing API.
+# Rewrite this prompt to be:
+# 1. EXTREMELY EXPLICIT about preserving the person's exact facial features and skin tone
+# 2. HIGHLY STRUCTURED with clear numbered steps for layout
+# 3. SPECIFIC about what NOT to include (e.g., no weapons, no extra objects)
 
-        if ref_img is None or gen_img is None:
-            return
+# CRITICAL RULES:
+# - Always start with: "IDENTITY PRESERVATION: Keep the exact face, {skin_tone or 'skin tone'}, and proportions from the reference."
+# - Break complex layouts into numbered steps
+# - List items to EXCLUDE in a "DO NOT ADD" section
+# - Use professional photography terminology
+# - Keep it under 500 words
 
-        ref_faces = face_app.get(ref_img)
-        gen_faces = face_app.get(gen_img)
+# Original prompt: {raw_prompt}"""
 
-        if not ref_faces or not gen_faces:
-            print("⚠️ No faces detected for skin preservation")
-            return
+#         response = gemini.generate_content(system_instruction)
+#         refined = getattr(response, "text", "") or ""
 
-        ref_face = max(ref_faces, key=lambda f: (
-            f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]))
-        gen_face = max(gen_faces, key=lambda f: (
-            f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]))
+#         if not refined.strip() or len(refined.strip()) < 10:
+#             print("⚠️ Gemini returned empty text, using fallback")
+#             return build_improved_edit_prompt(raw_prompt, skin_tone)
 
-        rx1, ry1, rx2, ry2 = ref_face.bbox.astype(int)
-        gx1, gy1, gx2, gy2 = gen_face.bbox.astype(int)
+#         return refined.strip()
+#     except Exception as e:
+#         print(f"⚠️ Gemini refinement failed: {e}")
+#         return build_improved_edit_prompt(raw_prompt, skin_tone)
 
-        # bounds clamp
-        Href, Wref = ref_img.shape[:2]
-        Hgen, Wgen = gen_img.shape[:2]
-        rx1, ry1 = max(0, rx1), max(0, ry1)
-        rx2, ry2 = min(Wref, rx2), min(Href, ry2)
-        gx1, gy1 = max(0, gx1), max(0, gy1)
-        gx2, gy2 = min(Wgen, gx2), min(Hgen, gy2)
 
-        if rx2 <= rx1 or ry2 <= ry1 or gx2 <= gx1 or gy2 <= gy1:
-            return
+# def apply_skin_tone_preservation(reference_path: str, generated_path: str) -> None:
+#     """
+#     Apply aggressive color correction to match reference skin tone.
+#     Runs AFTER generation to fix any tone drift.
+#     """
+#     try:
+#         face_app = get_face_app()
 
-        ref_face_region = ref_img[ry1:ry2, rx1:rx2]
-        gen_face_region = gen_img[gy1:gy2, gx1:gx2]
-        if ref_face_region.size == 0 or gen_face_region.size == 0:
-            return
+#         ref_img = cv2.imread(reference_path)
+#         gen_img = cv2.imread(generated_path)
 
-        # LAB color space matching
-        ref_lab = cv2.cvtColor(
-            ref_face_region, cv2.COLOR_BGR2LAB).astype(float)
-        gen_lab = cv2.cvtColor(
-            gen_face_region, cv2.COLOR_BGR2LAB).astype(float)
+#         if ref_img is None or gen_img is None:
+#             return
 
-        ref_mean, ref_std = ref_lab.mean(axis=(0, 1)), ref_lab.std(axis=(0, 1))
-        gen_mean, gen_std = gen_lab.mean(axis=(0, 1)), gen_lab.std(axis=(0, 1))
+#         ref_faces = face_app.get(ref_img)
+#         gen_faces = face_app.get(gen_img)
 
-        # Color transfer
-        for i in range(3):
-            gen_lab[:, :, i] = ((gen_lab[:, :, i] - gen_mean[i]) *
-                                (ref_std[i] / (gen_std[i] + 1e-6))) + ref_mean[i]
+#         if not ref_faces or not gen_faces:
+#             print("⚠️ No faces detected for skin preservation")
+#             return
 
-        gen_lab = np.clip(gen_lab, 0, 255).astype(np.uint8)
-        corrected_face = cv2.cvtColor(gen_lab, cv2.COLOR_LAB2BGR)
+#         ref_face = max(ref_faces, key=lambda f: (
+#             f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]))
+#         gen_face = max(gen_faces, key=lambda f: (
+#             f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]))
 
-        # soft ellipse mask
-        h, w = gen_face_region.shape[:2]
-        mask = np.zeros((h, w), dtype=np.float32)
-        cv2.ellipse(mask, (w//2, h//2), (w//2, h//2), 0, 0, 360, 1, -1)
-        mask = cv2.GaussianBlur(mask, (51, 51), 30)[..., None]
+#         rx1, ry1, rx2, ry2 = ref_face.bbox.astype(int)
+#         gx1, gy1, gx2, gy2 = gen_face.bbox.astype(int)
 
-        blended = (corrected_face * mask + gen_face_region *
-                   (1 - mask)).astype(np.uint8)
-        gen_img[gy1:gy2, gx1:gx2] = blended
-        cv2.imwrite(generated_path, gen_img, [cv2.IMWRITE_PNG_COMPRESSION, 9])
-        print("✅ Skin tone preservation applied")
-    except Exception as e:
-        print(f"⚠️ Skin preservation failed: {e}")
+#         # bounds clamp
+#         Href, Wref = ref_img.shape[:2]
+#         Hgen, Wgen = gen_img.shape[:2]
+#         rx1, ry1 = max(0, rx1), max(0, ry1)
+#         rx2, ry2 = min(Wref, rx2), min(Href, ry2)
+#         gx1, gy1 = max(0, gx1), max(0, gy1)
+#         gx2, gy2 = min(Wgen, gx2), min(Hgen, gy2)
+
+#         if rx2 <= rx1 or ry2 <= ry1 or gx2 <= gx1 or gy2 <= gy1:
+#             return
+
+#         ref_face_region = ref_img[ry1:ry2, rx1:rx2]
+#         gen_face_region = gen_img[gy1:gy2, gx1:gx2]
+#         if ref_face_region.size == 0 or gen_face_region.size == 0:
+#             return
+
+#         # LAB color space matching
+#         ref_lab = cv2.cvtColor(
+#             ref_face_region, cv2.COLOR_BGR2LAB).astype(float)
+#         gen_lab = cv2.cvtColor(
+#             gen_face_region, cv2.COLOR_BGR2LAB).astype(float)
+
+#         ref_mean, ref_std = ref_lab.mean(axis=(0, 1)), ref_lab.std(axis=(0, 1))
+#         gen_mean, gen_std = gen_lab.mean(axis=(0, 1)), gen_lab.std(axis=(0, 1))
+
+#         # Color transfer
+#         for i in range(3):
+#             gen_lab[:, :, i] = ((gen_lab[:, :, i] - gen_mean[i]) *
+#                                 (ref_std[i] / (gen_std[i] + 1e-6))) + ref_mean[i]
+
+#         gen_lab = np.clip(gen_lab, 0, 255).astype(np.uint8)
+#         corrected_face = cv2.cvtColor(gen_lab, cv2.COLOR_LAB2BGR)
+
+#         # soft ellipse mask
+#         h, w = gen_face_region.shape[:2]
+#         mask = np.zeros((h, w), dtype=np.float32)
+#         cv2.ellipse(mask, (w//2, h//2), (w//2, h//2), 0, 0, 360, 1, -1)
+#         mask = cv2.GaussianBlur(mask, (51, 51), 30)[..., None]
+
+#         blended = (corrected_face * mask + gen_face_region *
+#                    (1 - mask)).astype(np.uint8)
+#         gen_img[gy1:gy2, gx1:gx2] = blended
+#         cv2.imwrite(generated_path, gen_img, [cv2.IMWRITE_PNG_COMPRESSION, 9])
+#         print("✅ Skin tone preservation applied")
+#     except Exception as e:
+#         print(f"⚠️ Skin preservation failed: {e}")
 
 def login_required(f):
     """Decorator that restricts access to logged-in admin users."""
@@ -592,10 +592,10 @@ def chat_edit() -> Response:
             return jsonify({"error": f"Image not found: {abs_path}"}), 404
 
         # 🔹 Analyze tone for identity consistency
-        skin_tone = extract_skin_tone_description(abs_path)
+        # skin_tone = extract_skin_tone_description(abs_path)
 
         # 🔹 Build the full directive prompt
-        directive_prompt = f"""IDENTITY PRESERVATION: Maintain exact facial features and {skin_tone}.
+        directive_prompt = f"""IDENTITY PRESERVATION: Maintain exact facial features.
 CHANGE REQUEST: {instruction}
 CONSTRAINTS:
 - Do NOT alter skin tone or facial structure
@@ -639,7 +639,7 @@ CONSTRAINTS:
                     f.write(part.inline_data.data)
 
         # Optionally re-apply your tone-preserving logic
-        apply_skin_tone_preservation(abs_path, output_path)
+        # apply_skin_tone_preservation(abs_path, output_path)
 
         print(f"✅ Chat-edit successful: {output_path}")
         return jsonify({"image_url": f"/static/{filename}?v={int(time.time())}"})
