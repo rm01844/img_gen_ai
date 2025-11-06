@@ -1,6 +1,6 @@
 # 🧠 AI Image Generation API Documentation
 
-Welcome to the **AI Image Generation & Editing API**, powered by **Google Vertex AI (Imagen Models)** and deployed securely on **Railway**.
+Welcome to the **AI Image Generation & Editing API**, powered by **Google Vertex AI ( & Gemini Models)** and deployed securely on **Railway**.
 
 This service allows developers to:
 - 🎨 Generate images from text prompts
@@ -41,7 +41,7 @@ All endpoints are relative to this base URL.
 | Function | Model ID | Version | Provider |
 |-----------|-----------|----------|-----------|
 | Text → Image | `imagen-4.0-generate-001` | v4.0 | Google Vertex AI |
-| Image → Image (Edit) | `imagen-3.0-capability-001` | v3.0 | Google Vertex AI |
+| Image → Image (Edit) | `gemini-2.5-flash-image` | v3.0 | Google Vertex AI |
 | Text → Text (Prompt) | `gemini 2.5-pro` | v2.5 | Google Vertex AI |
 
 ---
