@@ -911,12 +911,12 @@ Each client or integration partner will receive a unique token associated with t
 <h3 id="post-edit"><strong>POST /edit</strong><a class="headerlink" href="#post-edit" title="Permanent link">&para;</a></h3>
 <p>This endpoint enables <strong>AI-powered image editing</strong> by combining<br />
 Google <strong>Gemini 2.5 Pro</strong> (for intelligent prompt refinement and feedback)<br />
-with <strong>Vertex AI Imagen 3.0</strong> (for photo-realistic image generation).</p>
+with <strong>Gemini 2.5 Flash Image</strong> (for photo-realistic image generation).</p>
 <hr />
 <h3 id="workflow-overview">🧩 Workflow Overview<a class="headerlink" href="#workflow-overview" title="Permanent link">&para;</a></h3>
 <ol>
 <li><strong>Prompt Refinement (Gemini 2.5 Pro)</strong></li>
-<li>The user’s raw text prompt is rewritten by Gemini to be concise, spatially descriptive, and better aligned with Imagen’s generation semantics.</li>
+<li>The user’s raw text prompt is rewritten by Gemini to be concise, spatially descriptive, and better aligned with Gemini's generation semantics.</li>
 <li>
 <p>Example transformation:<br />
      &gt; <em>"Turn this person into an action figure in orange packaging"</em><br />
@@ -926,7 +926,7 @@ with <strong>Vertex AI Imagen 3.0</strong> (for photo-realistic image generation
 <p><strong>Image Generation (Gemini 2.5 Flash Image)</strong></p>
 </li>
 <li>
-<p>The refined prompt and uploaded reference image are sent to Imagen to produce the edited output.</p>
+<p>The refined prompt and uploaded reference image are sent to Gemini 2.5 Flash Image to produce the edited output.</p>
 </li>
 <li>
 <p><strong>Automated Feedback (Gemini Vision Review)</strong></p>
