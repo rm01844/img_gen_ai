@@ -6,7 +6,7 @@ info:
   title: AI Image Generation API
   version: 1.0.0
   description: >
-    REST API for generating and editing images using Google Vertex AI Imagen models.
+    REST API for generating and editing images using Google Vertex AI Imagen & Gemini models.
     Built with Flask and deployed on Railway.
 servers:
   - url: "https://web-production-fc79.up.railway.app"
@@ -69,7 +69,7 @@ paths:
       summary: Edit an uploaded image with a prompt
       operationId: editImage
       description: >
-        Upload an image and provide a text prompt to apply visual edits using Vertex AI Imagen 3.0.
+        Upload an image and provide a text prompt to apply visual edits using Vertex AI Gemini 2.5 flash image.
       requestBody:
         required: true
         content:

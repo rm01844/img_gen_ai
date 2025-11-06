@@ -923,7 +923,7 @@ with <strong>Vertex AI Imagen 3.0</strong> (for photo-realistic image generation
      → <em>"Create a high-resolution product photo of the same person as a realistic action figure packaged in an orange blister pack with accessories arranged symmetrically and a name label at the top."</em></p>
 </li>
 <li>
-<p><strong>Image Generation (Vertex AI Imagen 3.0)</strong></p>
+<p><strong>Image Generation (Gemini 2.5 Flash Image)</strong></p>
 </li>
 <li>
 <p>The refined prompt and uploaded reference image are sent to Imagen to produce the edited output.</p>
@@ -1002,13 +1002,13 @@ with <strong>Vertex AI Imagen 3.0</strong> (for photo-realistic image generation
     "/static/edited_b28d9f.png"
   ]
 }</p>
-<p><strong>Underlying Model</strong>: imagen-3.0-capability-001 + Gemini 1.5 Pro
+<p><strong>Underlying Model</strong>: Gemini 2.5 Flash Image + Gemini 2.5 Pro
 <strong>Provider:</strong> Google Vertex AI</p>
 <h2 id="architecture-overview">Architecture Overview<a class="headerlink" href="#architecture-overview" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>graph TD
   A[Client Request (POST /edit)] --&gt; B[Flask API (Python)]
   B --&gt;|Multipart form: prompt + image| C[Gemini 2.5 Pro (Prompt Refinement)]
-  C --&gt;|Refined prompt| D[Vertex AI Imagen 3.0 (Image Editing)]
+  C --&gt;|Refined prompt| D[Nano Banana - Gemini 2.5 Flash Image(Image Editing)]
   D --&gt;|Generated image URLs| E[Gemini Vision Review (Optional Feedback)]
   E --&gt;|Revised prompt (if needed)| D
   D --&gt;|Final image URLs| F[Flask API Response]
