@@ -49,7 +49,7 @@ else:
 # Get GCP configuration from environment
 PROJECT_ID = os.getenv("PROJECT_ID")
 LOCATION = os.getenv("LOCATION", "us-central1")
-SERVICE_KEY_JSON = os.getenv("SERVICE_KEY_JSON")
+service_key_json = os.getenv("SERVICE_KEY_JSON")
 local_credentials = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
 SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]
