@@ -86,7 +86,7 @@ https://example.railway.app/login
 | Component | Purpose |
 |------------|----------|
 | **Flask** | Web framework and routing |
-| **Vertex AI Imagen** | AI image generation and editing |
+| **Vertex AI - Nano Banana** | AI image generation and editing |
 | **Google Service Account** | Authenticates your app with Vertex |
 | **Gunicorn** | Production web server |
 | **MkDocs** | Documentation generator |
@@ -110,7 +110,7 @@ Expected Response:
 
 ## 🧾 Credits
 
-Google Cloud Vertex AI Imagen
+Google Cloud Vertex AI Nano Banana
 
 Flask for backend
 
