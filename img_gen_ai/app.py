@@ -28,7 +28,7 @@ import base64
 import uuid
 import tempfile
 import time
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 import os 
 from dotenv import load_dotenv
 
@@ -582,19 +582,29 @@ def chat_edit() -> Response:
     try:
         data = request.get_json()
         instruction = data.get("instruction", "")
-        last_image = urlparse(data.get("image_path", "")).path.lstrip("/")
+        image_path = data.get("image_path", "")
 
-        if not instruction or not last_image:
+        # 🔹 Validate input
+        if not instruction or not image_path:
             return jsonify({"error": "Missing instruction or image"}), 400
 
-        abs_path = os.path.join(os.getcwd(), last_image)
+        # 🔹 Clean up image path and resolve absolute path safely
+        parsed_path = urlparse(image_path).path  # Remove query params like ?v=123
+        clean_path = unquote(parsed_path).lstrip("/")  # Decode spaces and strip leading slash
+        abs_path = os.path.join(os.getcwd(), clean_path)
+
+        # 🔹 If not found in working dir, try relative to script location
         if not os.path.exists(abs_path):
-            return jsonify({"error": f"Image not found: {abs_path}"}), 404
+            alt_path = os.path.join(os.path.dirname(__file__), clean_path)
+            if os.path.exists(alt_path):
+                abs_path = alt_path
+            else:
+                print(f"❌ Image not found: {clean_path}")
+                return jsonify({
+                    "error": f"Image not found: {clean_path}. Please re-upload or re-generate before refining."
+                }), 404
 
-        # 🔹 Analyze tone for identity consistency
-        # skin_tone = extract_skin_tone_description(abs_path)
-
-        # 🔹 Build the full directive prompt
+        # 🔹 Prepare directive prompt
         directive_prompt = f"""IDENTITY PRESERVATION: Maintain exact facial features.
 CHANGE REQUEST: {instruction}
 CONSTRAINTS:
@@ -605,11 +615,11 @@ CONSTRAINTS:
 
         print("🧠 Gemini 2.5 Flash Image chat-edit in progress...")
 
-        # ✅ Read image bytes (Gemini expects binary, not base64)
+        # 🔹 Read image bytes (Gemini expects raw bytes, not base64)
         with open(abs_path, "rb") as f:
             image_bytes = f.read()
 
-        # 🔹 Call Gemini 2.5 Flash Image
+        # 🔹 Generate new version using Gemini 2.5 Flash Image
         response = client.models.generate_content(
             model="gemini-2.5-flash-image",
             contents=[
@@ -627,7 +637,7 @@ CONSTRAINTS:
             ),
         )
 
-        # ✅ Save the edited image to /static
+        # 🔹 Save edited image in /static
         static_dir = os.path.join(os.path.dirname(__file__), "static")
         os.makedirs(static_dir, exist_ok=True)
         filename = f"chat_edit_{uuid.uuid4().hex}.png"
@@ -637,9 +647,6 @@ CONSTRAINTS:
             if hasattr(part, "inline_data"):
                 with open(output_path, "wb") as f:
                     f.write(part.inline_data.data)
-
-        # Optionally re-apply your tone-preserving logic
-        # apply_skin_tone_preservation(abs_path, output_path)
 
         print(f"✅ Chat-edit successful: {output_path}")
         return jsonify({"image_url": f"/static/{filename}?v={int(time.time())}"})
