@@ -98,26 +98,25 @@ Response
 **Underlying Model:** imagen-4.0-generate-001
 **Provider:** Google Vertex AI
 
----
 
 ### **POST /edit**
 
 This endpoint enables **AI-powered image editing** by combining  
 Google **Gemini 2.5 Pro** (for intelligent prompt refinement and feedback)  
-with **Vertex AI Imagen 3.0** (for photo-realistic image generation).
+with **Gemini 2.5 Flash Image** (for photo-realistic image generation).
 
 ---
 
 ### 🧩 Workflow Overview
 
 1. **Prompt Refinement (Gemini 2.5 Pro)**
-   - The user’s raw text prompt is rewritten by Gemini to be concise, spatially descriptive, and better aligned with Imagen’s generation semantics.
+   - The user’s raw text prompt is rewritten by Gemini to be concise, spatially descriptive, and better aligned with Gemini's generation semantics.
    - Example transformation:  
      > _"Turn this person into an action figure in orange packaging"_  
      → _"Create a high-resolution product photo of the same person as a realistic action figure packaged in an orange blister pack with accessories arranged symmetrically and a name label at the top."_
 
-2. **Image Generation (Vertex AI Imagen 3.0)**
-   - The refined prompt and uploaded reference image are sent to Imagen to produce the edited output.
+2. **Image Generation (Gemini 2.5 Flash Image)**
+   - The refined prompt and uploaded reference image are sent to Gemini 2.5 Flash Image to produce the edited output.
 
 3. **Automated Feedback (Gemini Vision Review)**
    - Gemini optionally evaluates the generated image for identity and layout consistency,  
@@ -164,7 +163,7 @@ Response
   ]
 }
 
-**Underlying Model**: imagen-3.0-capability-001 + Gemini 1.5 Pro
+**Underlying Model**: Gemini 2.5 Flash Image + Gemini 2.5 Pro
 **Provider:** Google Vertex AI
 
 ## Architecture Overview
@@ -173,7 +172,7 @@ Response
 graph TD
   A[Client Request (POST /edit)] --> B[Flask API (Python)]
   B -->|Multipart form: prompt + image| C[Gemini 2.5 Pro (Prompt Refinement)]
-  C -->|Refined prompt| D[Vertex AI Imagen 3.0 (Image Editing)]
+  C -->|Refined prompt| D[Nano Banana - Gemini 2.5 Flash Image(Image Editing)]
   D -->|Generated image URLs| E[Gemini Vision Review (Optional Feedback)]
   E -->|Revised prompt (if needed)| D
   D -->|Final image URLs| F[Flask API Response]
