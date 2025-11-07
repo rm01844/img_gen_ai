@@ -656,6 +656,60 @@ CONSTRAINTS:
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/compose", methods=["POST"])
+def compose_images():
+    """
+    Combine multiple uploaded images into one composition.
+    Example prompt:
+      "Make an action figure of the person on the left and the accessories on the right in a blister package."
+    """
+    try:
+        prompt = request.form.get("prompt", "").strip()
+        uploads = request.files.getlist("images")
+
+        if not uploads or not prompt:
+            return jsonify({"error": "Please upload images and provide a prompt"}), 400
+
+        parts = [{"text": prompt}]
+        for img in uploads:
+            img_bytes = img.read()
+            parts.append({
+                "inline_data": {
+                    "mime_type": "image/png",
+                    "data": img_bytes
+                }
+            })
+
+        print(
+            f"🧩 Composing {len(uploads)} images with Gemini 2.5 Flash Image...")
+
+        response = client.models.generate_content(
+            model="gemini-2.5-flash-image",
+            contents=[{"role": "user", "parts": parts}],
+            config=GenerateContentConfig(
+                response_modalities=["IMAGE"],
+                candidate_count=1,
+            ),
+        )
+
+        static_dir = os.path.join(os.path.dirname(__file__), "static")
+        os.makedirs(static_dir, exist_ok=True)
+        filename = f"composed_{uuid.uuid4().hex}.png"
+        output_path = os.path.join(static_dir, filename)
+
+        for part in response.candidates[0].content.parts:
+            if hasattr(part, "inline_data"):
+                with open(output_path, "wb") as f:
+                    f.write(part.inline_data.data)
+
+        print(f"✅ Composition created: {output_path}")
+        return jsonify({"image_url": f"/static/{filename}?v={int(time.time())}"})
+
+    except Exception as e:
+        print(f"❌ Composition error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/logout")
 def logout() -> Response:
     """Log out the current admin session."""
