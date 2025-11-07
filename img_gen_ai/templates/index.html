@@ -635,9 +635,11 @@
       <!-- LEFT PANEL: Controls -->
       <div class="controls-panel">
         <div class="mode-tabs">
-          <button class="mode-tab active" data-mode="generate">✨ Generate</button>
-          <button class="mode-tab" data-mode="edit">🖼️ Edit</button>
+          <button class="mode-tab active" id="generateTab">Generate</button>
+          <button class="mode-tab" id="editTab">Edit</button>
+          <button class="mode-tab" id="composeTab">Compose</button>
         </div>
+
 
         <!-- Prompt Input -->
         <div class="control-group">
@@ -683,6 +685,21 @@
                 <label style="margin: 0;">Preserve Colors</label>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- 🔹 MULTI-IMAGE COMPOSE SECTION -->
+        <div id="composeControls" style="display: none;">
+          <div class="control-group">
+            <h3 style="margin-bottom: 0.5rem; color: var(--text);">🧩 Compose Multiple Images</h3>
+            <p style="font-size: 0.85rem; color: var(--text); opacity: 0.8;">
+              Upload multiple reference photos (e.g., one person + several accessories), and describe how to combine them.
+            </p>
+
+            <form id="composeForm" enctype="multipart/form-data" style="margin-top: 1rem;">
+              <label for="composePrompt" style="display: block; margin-bottom: 0.4rem; font-weight: 600;">Prompt</label>
+              <input type="file" id="composeImages" name="images" multiple accept="image/*" style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border); background:var(--panel-bg); color:var(--text);">
+            </form>
           </div>
         </div>
 
@@ -807,7 +824,7 @@
       document.getElementById('editStrengthValue').textContent = e.target.value;
     });
 
-    // Generate/Edit Image
+    // Generate/Edit/Compose Image
     async function generateImage() {
       const prompt = document.getElementById('promptInput').value.trim();
       const loader = document.getElementById('loader');
@@ -820,7 +837,7 @@
         return;
       }
 
-      if (currentMode === 'edit' && !document.getElementById('imageUpload').files[0]) {
+      if (currentMode === 'edit' && 'compose' && !document.getElementById('imageUpload').files[0]) {
         alert('Please upload an image to edit!');
         return;
       }
@@ -844,7 +861,7 @@
       try {
         let response;
 
-        if (currentMode === 'edit') {
+        if (currentMode === 'edit' && 'compose') {
           const formData = new FormData();
           formData.append('prompt', prompt);
           formData.append('image', document.getElementById('imageUpload').files[0]);
@@ -1015,6 +1032,74 @@
       }
       updateIcon();
     });
+
+    // Example toggle hook for Compose mode (optional)
+    document.getElementById("modeComposeBtn")?.addEventListener("click", () => {
+      document.getElementById("composeControls").style.display = "block";
+      document.getElementById("editControls").style.display = "none";
+    });
+    // Compose Form Submission
+    document.getElementById("composeForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const prompt = document.getElementById("promptInput").value.trim();
+      const images = document.getElementById("composeImages").files;
+
+      if (!prompt) {
+        alert("Please enter a description before composing.");
+        return;
+      }
+      if (images.length === 0) {
+        alert("Please upload at least one image.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("prompt", prompt);
+      for (const img of images) formData.append("images", img);
+
+      const composeBtn = document.getElementById("composeBtn");
+      composeBtn.disabled = true;
+      composeBtn.textContent = "Composing...";
+
+      try {
+        const res = await fetch("/compose", { method: "POST", body: formData });
+        const data = await res.json();
+
+        if (data.image_urls) {
+          console.log("✅ Compose Success:", data.image_urls);
+          // you can call your gallery update logic here
+        } else {
+          alert(data.error || "Something went wrong.");
+        }
+      } catch (err) {
+        console.error("❌ Compose Error:", err);
+        alert("Failed to compose images.");
+      }
+    });
+
+
+    const generateTab = document.getElementById("generateTab");
+    const editTab = document.getElementById("editTab");
+    const composeTab = document.getElementById("composeTab");
+
+    const generateControls = document.getElementById("generateControls");
+    const editControls = document.getElementById("editControls");
+    const composeControls = document.getElementById("composeControls");
+
+    function setActiveTab(tab) {
+      [generateTab, editTab, composeTab].forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+
+      // Show/Hide panels
+      generateControls.style.display = tab === generateTab ? "block" : "none";
+      editControls.style.display = tab === editTab ? "block" : "none";
+      composeControls.style.display = tab === composeTab ? "block" : "none";
+    }
+
+    generateTab.addEventListener("click", () => setActiveTab(generateTab));
+    editTab.addEventListener("click", () => setActiveTab(editTab));
+    composeTab.addEventListener("click", () => setActiveTab(composeTab));
 
   </script>
 </body>
